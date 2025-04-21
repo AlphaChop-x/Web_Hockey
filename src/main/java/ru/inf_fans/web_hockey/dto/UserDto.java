@@ -1,19 +1,22 @@
 package ru.inf_fans.web_hockey.dto;
 
-import lombok.Data;
+import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
+import org.springframework.format.annotation.DateTimeFormat;
 import ru.inf_fans.web_hockey.entity.user.enums.Gender;
-import ru.inf_fans.web_hockey.entity.user.enums.Role;
 import ru.inf_fans.web_hockey.entity.user.enums.RussianHockeyRank;
 
-@Data
-public class UserDto {
-    private int id;
-    private String name;
-    private String surname;
-    private String email;
-    private String phoneNumber;
-    private Gender gender;
-    private RussianHockeyRank rank;
-    private Role role;
-    private int rating;
+import java.util.Date;
+
+@Builder
+public record UserDto(
+        @NotNull(message = " is mandatory") String name,
+        @NotNull(message = " is mandatory") String surname,
+        String patronymic,
+        @NotNull(message = " is mandatory") String email,
+        @NotNull(message = "Password is mandatory") String password,
+        @NotNull(message = " is mandatory") String phoneNumber,
+        @NotNull(message = " is mandatory") Gender gender,
+        @NotNull(message = " is mandatory") @DateTimeFormat(pattern = "yyyy-MM-dd") Date born,
+        @NotNull(message = " is mandatory") RussianHockeyRank rank) {
 }

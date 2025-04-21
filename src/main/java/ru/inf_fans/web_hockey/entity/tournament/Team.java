@@ -2,10 +2,9 @@ package ru.inf_fans.web_hockey.entity.tournament;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import ru.inf_fans.web_hockey.entity.user.User;
+import ru.inf_fans.web_hockey.entity.user.UserEntity;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Data
@@ -26,9 +25,9 @@ public class Team {
             joinColumns = @JoinColumn(name = "team_id"),
             inverseJoinColumns = @JoinColumn(name = "player_id")
     )
-    private Set<User> players = new HashSet<>();
+    private Set<UserEntity> players = new HashSet<>();
 
-    public Team(Set<User> players) {
+    public Team(Set<UserEntity> players) {
         this.players = players;
     }
 

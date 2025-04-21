@@ -7,7 +7,7 @@ public interface PlayerPerformanceRepository extends CrudRepository<PlayerPerfor
     /**
      * Удаляет запись перформанса игрока, по playerId (int)
      *
-     * @param playerId - id игрока из таблицы User
+     * @param playerId - id игрока из таблицы UserEntity
      */
     void deleteByPlayerId(int playerId);
 }

@@ -1,5 +1,6 @@
 package ru.inf_fans.web_hockey.controller.controllerAdvice;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,13 @@ public class ExceptionApiHandler {
     public ResponseEntity<ErrorMessage> mismatchException(MethodArgumentTypeMismatchException exception) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorMessage(exception.getMessage(), Arrays.toString(exception.getStackTrace())));
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<ErrorMessage> duplicateKeyException(DuplicateKeyException exception) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
                 .body(new ErrorMessage(exception.getMessage(), Arrays.toString(exception.getStackTrace())));
     }
 

@@ -1,54 +1,62 @@
 package ru.inf_fans.web_hockey.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
+import ru.inf_fans.web_hockey.dto.UserDto;
 import ru.inf_fans.web_hockey.entity.tournament.Tournament;
-import ru.inf_fans.web_hockey.entity.user.User;
-import ru.inf_fans.web_hockey.repository.PlayerPerformanceRepository;
-import ru.inf_fans.web_hockey.repository.TeamRepository;
+import ru.inf_fans.web_hockey.entity.user.UserEntity;
+import ru.inf_fans.web_hockey.mapper.UserEntityMapper;
 import ru.inf_fans.web_hockey.repository.TournamentRepository;
 import ru.inf_fans.web_hockey.repository.UserRepository;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-public class UserServiceImpl implements UserService {
-
+@RequiredArgsConstructor
+public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
+    private final UserEntityMapper userEntityMapper;
     private final PlatformTransactionManager transactionManager;
     private final TournamentRepository tournamentRepository;
 
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository, PlatformTransactionManager transactionManager, PlayerPerformanceRepository playerPerformanceRepository, TournamentRepository tournamentRepository, TeamRepository teamRepository) {
-        this.userRepository = userRepository;
-        this.transactionManager = transactionManager;
-        this.tournamentRepository = tournamentRepository;
-    }
-
     @Override
-    public User createUser(User user) {
+    public UserDto createUser(UserDto userDto) {
         TransactionStatus transaction = transactionManager.getTransaction(new DefaultTransactionDefinition());
         try {
-            userRepository.save(user);
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+            UserEntity userEntity = userEntityMapper.toUserEntity(userDto);
+            userEntity.setPassword(encoder.encode(userEntity.getPassword()));
+
+            userRepository.save(userEntity);
             transactionManager.commit(transaction);
         } catch (DataAccessException e) {
             transactionManager.rollback(transaction);
             throw e;
         }
-        return user;
+        return userDto;
     }
 
     @Override
-    public User getUser(int userId) {
+    public UserEntity getUser(int userId) {
         TransactionStatus transaction = transactionManager.getTransaction(new DefaultTransactionDefinition());
         try {
-            User user = userRepository.getUserById(userId);
+            UserEntity userEntity = userRepository.getUserById(userId);
             transactionManager.commit(transaction);
-            return user;
+            return userEntity;
         } catch (DataAccessException e) {
             transactionManager.rollback(transaction);
             throw e;
@@ -59,12 +67,12 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(int userId) {
         TransactionStatus transaction = transactionManager.getTransaction(new DefaultTransactionDefinition());
         try {
-            //Удаляем User-а из всех таблиц
-            User user = userRepository.getUserById(userId);
+            //Удаляем UserEntity-а из всех таблиц
+            UserEntity userEntity = userRepository.getUserById(userId);
             List<Tournament> tournaments = tournamentRepository.findAllTournaments();
             for (Tournament tournament : tournaments) {
-                tournament.removeUser(user);
-                System.out.println("User " + userId + " has been deleted from tournament: " + tournament.getName());
+                tournament.removeUser(userEntity);
+                System.out.println("UserEntity " + userId + " has been deleted from tournament: " + tournament.getName());
             }
             //Если всё в порядке, завершаем транзакт
             transactionManager.commit(transaction);
@@ -74,13 +82,27 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+
+        UserEntity userEntity = userRepository.findByEmailIgnoreCase(email);
+
+        if (userEntity == null) {
+            throw new UsernameNotFoundException("UserEntity with email " + email + " not found");
+        }
+
+        return new User(userEntity.getEmail(), userEntity.getPassword(), extractRoles(userEntity));
+    }
+
+    private Collection<? extends GrantedAuthority> extractRoles(UserEntity userEntity) {
+        return userEntity.getRole().stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                .collect(Collectors.toSet());
+    }
 
     public void updateUserRating(int userId, float rating) {
         TransactionStatus transaction = transactionManager.getTransaction(new DefaultTransactionDefinition());
         try {
-//            User user = userRepository.getUserById(userId);
-//            user.setRating(rating);
-//            userRepository.save(user);
             userRepository.updateUser_RatingById(userId, rating);
             transactionManager.commit(transaction);
         } catch (DataAccessException e) {

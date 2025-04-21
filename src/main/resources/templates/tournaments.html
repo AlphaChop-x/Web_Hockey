@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Tournaments List!</title>
+</head>
+
+<body style="text-align: center">
+<form th:action="@{/tournaments}" method="POST" th:object="${tournament}">
+
+    <label for="name">Название турнира:</label>
+    <br/><input type="text" name="name" id="name"/>
+
+    <br/><label for="startDate">Дата начала турнира:</label>
+    <br/><input type="date" name="startDate" id="startDate"/>
+
+    <br/><label for="endDate">Дата конца турнира:</label>
+    <br/><input type="date" name="endDate" id="endDate">/
+
+    <br/><label for="format">Формат турнира: (FORMAT_5v5,FORMAT_4v4)</label>
+    <br/><input type="text" name="format" id="format"/>
+
+    <br/><label for="location">Локация турнира:</label>
+    <br/><input type="text" name="location" id="location"/>
+
+    <p>
+        <button type="submit" class="primary">Добавить турнир</button>
+    </p>
+
+</form>
+
+<table border="1">
+    <tr>
+        <th>Name</th>
+        <th>StartDate</th>
+        <th>EndDate</th>
+        <th>Format</th>
+        <th>Location</th>
+    </tr>
+    <tr th:each="tournament : ${tournaments}">
+        <td th:text="${tournament.getName()}"></td>
+        <td th:text="${tournament.getStartDate()}"></td>
+        <td th:text="${tournament.getEndDate()}"></td>
+        <td th:text="${tournament.getFormat()}"></td>
+        <td th:text="${tournament.getLocation()}"></td>
+    </tr>
+</table>
+</body>
+</html>

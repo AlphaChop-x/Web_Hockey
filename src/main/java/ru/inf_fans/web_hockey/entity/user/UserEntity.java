@@ -3,6 +3,9 @@ package ru.inf_fans.web_hockey.entity.user;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.springframework.format.annotation.DateTimeFormat;
 import ru.inf_fans.web_hockey.entity.tournament.Team;
 import ru.inf_fans.web_hockey.entity.tournament.Tournament;
 import ru.inf_fans.web_hockey.entity.user.enums.Gender;
@@ -11,12 +14,14 @@ import ru.inf_fans.web_hockey.entity.user.enums.RussianHockeyRank;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
 @Entity
+@ToString
 @Table(name = "app_user")
-public class User {
+public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(columnDefinition = "int", updatable = false, nullable = false)
@@ -47,6 +52,7 @@ public class User {
     private String password;
 
     @Column(nullable = false)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date born;
 
     @Enumerated(EnumType.STRING)
@@ -67,10 +73,14 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
-    @ManyToMany(mappedBy = "players")
+    @ManyToMany(mappedBy = "players", fetch = FetchType.EAGER)
     private Set<Team> teams = new HashSet<>();
 
     @JsonIgnore
     @ManyToMany
     private Set<Tournament> tournament = new HashSet<>();
+
+    public List<Role> getRole() {
+        return List.of(this.role);
+    }
 }

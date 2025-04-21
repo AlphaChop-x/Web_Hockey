@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Log in to WebHockey!</title>
+</head>
+
+<body style="text-align: center">
+
+<h1>Please log in!</h1>
+
+<div th:if="${param.error}" style="text-align: center; margin-bottom: 10px; color: darkred">
+    User with that email and password don't exist!
+</div>
+
+<div th:if="${registered}" style="text-align: center; margin-bottom: 10px; color: green">
+    You registered successfully!
+</div>
+
+<form th:action="@{/login}" method="POST">
+
+    <label>Enter email:</label>
+    <label>
+        <input type="text" name="username" placeholder="email" style="margin-bottom: 10px"/><br/>
+    </label>
+
+    <label>Enter password:</label>
+    <label>
+        <input type="password" name="password" placeholder="password" style="margin-bottom: 10px"/><br/>
+    </label>
+
+    <input type="submit" value="log in" style="margin-bottom: 10px">
+</form>
+
+<form th:action="@{/register}" method="GET">
+    <input type="submit" value="register">
+</form>
+
+</body>
+
+</html>

@@ -6,11 +6,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import ru.inf_fans.web_hockey.dto.UserDto;
 import ru.inf_fans.web_hockey.entity.tournament.Tournament;
-import ru.inf_fans.web_hockey.entity.user.User;
+import ru.inf_fans.web_hockey.entity.user.UserEntity;
 
-import java.util.Collections;
 import java.util.List;
 
 @Repository
@@ -27,7 +25,7 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
     Tournament findTournamentsById(Long tournamentId);
 
     @Query("SELECT u FROM Tournament t JOIN t.players u WHERE t.id = :tournamentId")
-    List<User> findPlayersById(Long tournamentId);
+    List<UserEntity> findPlayersById(Long tournamentId);
 
     @Modifying
     @Query("DELETE FROM Tournament t WHERE t.id = :tournamentId")
@@ -40,5 +38,5 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
     String findTournament_IdByName(String tournamentName);
 
     @Query("SELECT u FROM Tournament t JOIN t.players u WHERE t.id = :tournamentId AND u.id = :userId")
-    User findUserByTournament_IdAndUserId(Long tournamentId, int userId);
+    UserEntity findUserByTournament_IdAndUserId(Long tournamentId, int userId);
 }

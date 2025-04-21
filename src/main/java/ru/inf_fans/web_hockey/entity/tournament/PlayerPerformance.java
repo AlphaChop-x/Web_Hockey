@@ -2,7 +2,7 @@ package ru.inf_fans.web_hockey.entity.tournament;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import ru.inf_fans.web_hockey.entity.user.User;
+import ru.inf_fans.web_hockey.entity.user.UserEntity;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,7 +18,7 @@ public class PlayerPerformance {
 
     @ManyToOne
     @JoinColumn(name = "player_id")
-    private User player;
+    private UserEntity player;
 
     @ManyToMany
     @JoinTable(

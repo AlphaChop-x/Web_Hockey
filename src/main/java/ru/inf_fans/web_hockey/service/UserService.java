@@ -1,12 +1,13 @@
 package ru.inf_fans.web_hockey.service;
 
-import ru.inf_fans.web_hockey.entity.user.User;
+import ru.inf_fans.web_hockey.dto.UserDto;
+import ru.inf_fans.web_hockey.entity.user.UserEntity;
 
 public interface UserService {
 
-    User createUser(User user);
+    UserDto createUser(UserDto userDto);
 
-    User getUser(int userId);
+    UserEntity getUser(int userId);
 
     void deleteUser(int userId);
 }

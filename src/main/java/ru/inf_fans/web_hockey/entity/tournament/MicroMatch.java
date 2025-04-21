@@ -3,7 +3,7 @@ package ru.inf_fans.web_hockey.entity.tournament;
 import jakarta.persistence.*;
 import lombok.Data;
 import ru.inf_fans.web_hockey.entity.tournament.enums.MatchStatus;
-import ru.inf_fans.web_hockey.entity.user.User;
+import ru.inf_fans.web_hockey.entity.user.UserEntity;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -45,7 +45,7 @@ public class MicroMatch {
 
     }
 
-    public MicroMatch(List<User> team, List<User> opposingTeam, Tournament tournament) {
+    public MicroMatch(List<UserEntity> team, List<UserEntity> opposingTeam, Tournament tournament) {
 
     }
 }

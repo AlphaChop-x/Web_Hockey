@@ -1,11 +1,10 @@
 package ru.inf_fans.web_hockey.entity.tournament;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import lombok.Data;
 import ru.inf_fans.web_hockey.entity.tournament.enums.TournamentFormat;
-import ru.inf_fans.web_hockey.entity.user.User;
+import ru.inf_fans.web_hockey.entity.user.UserEntity;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -46,15 +45,15 @@ public class Tournament {
             joinColumns = @JoinColumn(name = "tournament_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> players = new ArrayList<>();
+    private List<UserEntity> players = new ArrayList<>();
 
     @Transactional
-    public void addUser(User user) {
-        this.players.add(user);
+    public void addUser(UserEntity userEntity) {
+        this.players.add(userEntity);
     }
 
     @Transactional
-    public void removeUser(User user) {
-        this.players.remove(user);
+    public void removeUser(UserEntity userEntity) {
+        this.players.remove(userEntity);
     }
 }

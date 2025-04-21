@@ -54,7 +54,7 @@ public class TournamentRestController {
             UserDto userDto = tournamentService.AddUserToTournament(tournamentId, userId);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body("User successfully added to tournament with id: "
+                    .body("UserEntity successfully added to tournament with id: "
                             + tournamentId + "!\n" + userDto);
         } catch (Exception e) {
             return ResponseEntity
