@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import ru.inf_fans.web_hockey.dto.UserDto;
 import ru.inf_fans.web_hockey.entity.user.UserEntity;
 
 public interface UserRepository extends CrudRepository<UserEntity, String> {
@@ -19,4 +20,6 @@ public interface UserRepository extends CrudRepository<UserEntity, String> {
 
     @Query("SELECT u FROM UserEntity u WHERE  u.email = :email")
     UserEntity findByEmailIgnoreCase(String email);
+
+    UserEntity findUserByEmail(String email);
 }

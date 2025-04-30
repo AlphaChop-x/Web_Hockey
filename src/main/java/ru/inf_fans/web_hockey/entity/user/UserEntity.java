@@ -2,9 +2,7 @@ package ru.inf_fans.web_hockey.entity.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.inf_fans.web_hockey.entity.tournament.Team;
 import ru.inf_fans.web_hockey.entity.tournament.Tournament;
@@ -19,7 +17,6 @@ import java.util.Set;
 
 @Data
 @Entity
-@ToString
 @Table(name = "app_user")
 public class UserEntity {
     @Id
@@ -59,7 +56,7 @@ public class UserEntity {
     @Column(nullable = false)
     private Gender gender;
 
-    @Column
+    @Column(nullable = false)
     private Float rating;
 
     @Enumerated(EnumType.STRING)

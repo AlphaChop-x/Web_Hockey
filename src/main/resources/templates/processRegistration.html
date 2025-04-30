@@ -11,43 +11,43 @@
 
         <h2>Register new userEntity</h2>
 
-             <label for="name">Name: </label>
+        <label for="name">Name: </label>
         <br/><input type="text" name="name" id="name"
                     th:class="${#fields.hasErrors('name')} ? 'input-error'"/>
-        <br/><span th:if="${#fields.hasErrors('Name')}" class="error"
+        <br/><span th:if="${#fields.hasErrors('name')}" class="error"
                    th:errors="*{name}" style="color: #ff111b; font-size: 16px">Name error!</span>
 
-             <label for="surname">Surname: </label>
+        <br/><label for="surname">Surname: </label>
         <br/><input type="text" name="surname" id="surname"
                     th:class="${#fields.hasErrors('surname')} ? 'input-error'"/>
         <br/><span th:if="${#fields.hasErrors('surname')}" class="error"
                    th:errors="*{surname}" style="color: #ff111b; font-size: 16px">Surname error!</span>
 
-             <label for="patronymic">Patronymic: </label>
+        <br/><label for="patronymic">Patronymic: </label>
         <br/><input type="text" name="patronymic" id="patronymic"
                     th:class="${#fields.hasErrors('patronymic')} ? 'input-error'"/>
         <br/><span th:if="${#fields.hasErrors('patronymic')}" class="error"
                    th:errors="*{patronymic}" style="color: #ff111b; font-size: 16px">Patronymic error!</span>
 
-             <label for="email">Email: </label>
+        <br/><label for="email">Email: </label>
         <br/><input type="text" name="email" id="email"
                     th:class="${#fields.hasErrors('email')} ? 'input-error'"/>
         <br/><span th:if="${#fields.hasErrors('email')}" class="error"
                    th:errors="*{email}" style="color: #ff111b; font-size: 16px">Email error!</span>
 
-             <label for="phoneNumber">Phone number: : </label>
+        <br/><label for="phoneNumber">Phone number: : </label>
         <br/><input type="text" name="phoneNumber" id="phoneNumber"
                     th:class="${#fields.hasErrors('phoneNumber')} ? 'input-error'"/>
         <br/><span th:if="${#fields.hasErrors('phoneNumber')}" class="error"
                    th:errors="*{phoneNumber}" style="color: #ff111b; font-size: 16px">Phone number!</span>
 
-             <label for="gender">Gender: (type MALE or FEMALE) </label>
+        <br/><label for="gender">Gender: (type MALE or FEMALE) </label>
         <br/><input type="text" name="gender" id="gender"
                     th:class="${#fields.hasErrors('gender')} ? 'input-error'"/>
         <br/><span th:if="${#fields.hasErrors('gender')}" class="error"
                    th:errors="*{gender}" style="color: #ff111b; font-size: 16px">Gender error!</span>
 
-             <label for="born">Date of birth: </label>
+        <br/><label for="born">Date of birth: </label>
         <br/><input type="date" name="born" id="born"
                     th:class="${#fields.hasErrors('born')} ? 'input-error'"/>
         <br/><span th:if="${#fields.hasErrors('born')}" class="error"
@@ -65,8 +65,8 @@
         <br/><span th:if="${#fields.hasErrors('password')}" class="error"
                    th:errors="*{password}" style="color: #ff111b; font-size: 16px">Password error</span>
 
-        <br/><label> RetypePassword: </label>
-        <br/><input type="password" name="retypedPassword"/>
+        <br/><label for="retypedPassword"> RetypePassword: </label>
+        <br/><input type="password" name="retypedPassword" id="retypedPassword"/>
         <br/><span th:if="${passwordsNotEquals != null}"
                    style="font-family: monospace; color: #ff111b; text-align: center; font-size: 16px">
             Passwords not equals, please retype them!

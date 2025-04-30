@@ -7,5 +7,4 @@ import java.util.List;
 
 @Service
 public interface TournamentService {
-    List<MicroMatch> generateMicroMatches(Long tournamentId);
 }

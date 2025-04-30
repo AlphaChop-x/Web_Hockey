@@ -17,10 +17,15 @@ import ru.inf_fans.web_hockey.dto.UserDto;
 import ru.inf_fans.web_hockey.entity.tournament.Tournament;
 import ru.inf_fans.web_hockey.entity.user.UserEntity;
 import ru.inf_fans.web_hockey.mapper.UserEntityMapper;
+import ru.inf_fans.web_hockey.mapper.UserMapper;
 import ru.inf_fans.web_hockey.repository.TournamentRepository;
 import ru.inf_fans.web_hockey.repository.UserRepository;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +34,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
     private final UserEntityMapper userEntityMapper;
+    private final UserMapper userMapper;
     private final PlatformTransactionManager transactionManager;
     private final TournamentRepository tournamentRepository;
 
@@ -41,6 +47,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             UserEntity userEntity = userEntityMapper.toUserEntity(userDto);
             userEntity.setPassword(encoder.encode(userEntity.getPassword()));
 
+            int userAgeInYears = calculateAge(userEntity.getBorn());
+            userEntity.setRating(100.0f * userAgeInYears);
+
             userRepository.save(userEntity);
             transactionManager.commit(transaction);
         } catch (DataAccessException e) {
@@ -51,12 +60,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public UserEntity getUser(int userId) {
+    public UserDto getUser(int userId) {
         TransactionStatus transaction = transactionManager.getTransaction(new DefaultTransactionDefinition());
         try {
             UserEntity userEntity = userRepository.getUserById(userId);
+            UserDto userDto = userMapper.toUserDto(userEntity);
             transactionManager.commit(transaction);
-            return userEntity;
+            return userDto;
         } catch (DataAccessException e) {
             transactionManager.rollback(transaction);
             throw e;
@@ -108,5 +118,34 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         } catch (DataAccessException e) {
             transactionManager.rollback(transaction);
         }
+    }
+
+    public UserDto getUserDtoByUserEmail(String email) {
+        UserEntity entity = userRepository.findUserByEmail(email);
+
+        return userMapper.toUserDto(entity);
+    }
+
+    public int getUserIdByName(String name) {
+        return userRepository.findUserByEmail(name).getId();
+    }
+
+    /**
+     * Вспомогательный метод, подсчитывающий текущий возраст игрока (Кол-во полных лет)
+     *
+     * @return int Возраст (полных лет) игрока
+     */
+    public int calculateAge(Date born) {
+        if (born == null) {
+            throw new IllegalArgumentException("born is null");
+        }
+
+        LocalDate birthDate = born.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        LocalDate currentDate = LocalDate.now();
+
+        return Period.between(birthDate, currentDate).getYears();
     }
 }

@@ -35,11 +35,14 @@ public class MicroMatch {
     @Column()
     private LocalDate endDate;
 
+    @Column()
+    private int firstTeamScore;
+
+    @Column()
+    private int secondTeamScore;
+
     @Enumerated(EnumType.STRING)
     private MatchStatus status;
-
-    @ManyToMany(mappedBy = "micromatches")
-    private Set<PlayerPerformance> playerPerformances = new HashSet<>();
 
     public MicroMatch() {
 

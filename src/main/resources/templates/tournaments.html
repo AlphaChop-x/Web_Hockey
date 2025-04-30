@@ -18,31 +18,31 @@
     <br/><label for="endDate">Дата конца турнира:</label>
     <br/><input type="date" name="endDate" id="endDate">/
 
-    <br/><label for="format">Формат турнира: (FORMAT_5v5,FORMAT_4v4)</label>
-    <br/><input type="text" name="format" id="format"/>
-
     <br/><label for="location">Локация турнира:</label>
     <br/><input type="text" name="location" id="location"/>
-
     <p>
         <button type="submit" class="primary">Добавить турнир</button>
     </p>
+</form>
 
+<form th:action="@{/tournaments/{id}(id=tournamentId)}" method="get">
+    <input type="text" name="tournamentId" th:value="${tournamentId}" placeholder="Enter ID">
+    <button type="submit">Найти турнир</button>
 </form>
 
 <table border="1">
     <tr>
+        <th>Id</th>
         <th>Name</th>
         <th>StartDate</th>
         <th>EndDate</th>
-        <th>Format</th>
         <th>Location</th>
     </tr>
     <tr th:each="tournament : ${tournaments}">
+        <td th:text="${tournament.getId()}"></td>
         <td th:text="${tournament.getName()}"></td>
         <td th:text="${tournament.getStartDate()}"></td>
         <td th:text="${tournament.getEndDate()}"></td>
-        <td th:text="${tournament.getFormat()}"></td>
         <td th:text="${tournament.getLocation()}"></td>
     </tr>
 </table>

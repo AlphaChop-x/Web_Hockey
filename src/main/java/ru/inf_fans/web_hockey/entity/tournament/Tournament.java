@@ -28,10 +28,6 @@ public class Tournament {
     @Column()
     private LocalDate endDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column()
-    private TournamentFormat format;
-
     @Column
     private String location;
 
@@ -43,7 +39,7 @@ public class Tournament {
     @JoinTable(
             name = "app_user_tournament",
             joinColumns = @JoinColumn(name = "tournament_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
+            inverseJoinColumns = @JoinColumn(name = "user_entity_id")
     )
     private List<UserEntity> players = new ArrayList<>();
 

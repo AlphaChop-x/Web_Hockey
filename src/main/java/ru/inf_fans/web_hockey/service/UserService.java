@@ -7,7 +7,7 @@ public interface UserService {
 
     UserDto createUser(UserDto userDto);
 
-    UserEntity getUser(int userId);
+    UserDto getUser(int userId);
 
     void deleteUser(int userId);
 }

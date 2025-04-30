@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Страница турнира</title>
+</head>
+<body th:object="${tournament}" style="text-align: center">
+<li>Название турнира: <span th:text="*{name}"></span></li>
+<li>Время начала турнира: <span th:text="*{startDate}"></span></li>
+<li>Время конца турнира: <span th:text="*{endDate}"></span></li>
+<li>Место проведения: <span th:text="*{location}"></span></li>
+</body>
+</html>

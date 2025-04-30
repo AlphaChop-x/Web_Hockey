@@ -16,7 +16,7 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
     @Transactional
     @Modifying
     @Query(value =
-            "INSERT INTO app_user_tournament (tournament_id, user_id) " +
+            "INSERT INTO app_user_tournament (tournament_id, user_entity_id) " +
                     "VALUES (:tournamentId, :playerId)", nativeQuery = true)
     void addPlayerToTournament(@Param("tournamentId") Long tournamentId,
                                @Param("playerId") int playerId);
@@ -37,6 +37,6 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
     @Query("SELECT t.id FROM Tournament t WHERE t.name = :tournamentName")
     String findTournament_IdByName(String tournamentName);
 
-    @Query("SELECT u FROM Tournament t JOIN t.players u WHERE t.id = :tournamentId AND u.id = :userId")
-    UserEntity findUserByTournament_IdAndUserId(Long tournamentId, int userId);
+    @Query("SELECT u FROM Tournament t JOIN t.players u WHERE t.id = :tournamentId AND u.id = :userEntityId")
+    UserEntity findUserByTournament_IdAndUserId(Long tournamentId, int userEntityId);
 }

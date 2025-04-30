@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Страница пользователя</title>
+</head>
+<body style="text-align: center">
+<ul th:object="${userDto}">
+    <li>ФИО: <span th:text="*{surname + ' ' + name + ' ' + patronymic}"></span></li>
+    <li>Почта: <span th:text="*{email}"></span></li>
+    <li>Телефон: <span th:text="*{phoneNumber}"></span></li>
+    <li>Рейтинг: <span th:text="*{rating}"></span></li>
+</ul>
+</body>
+</html>
