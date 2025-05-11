@@ -15,8 +15,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @Entity
+@ToString(exclude = "tournament")
 @Table(name = "app_user")
 public class UserEntity {
     @Id
@@ -68,9 +70,9 @@ public class UserEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;
+    private Role role = Role.USER;
 
-    @ManyToMany(mappedBy = "players", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "players", fetch = FetchType.LAZY)
     private Set<Team> teams = new HashSet<>();
 
     @JsonIgnore

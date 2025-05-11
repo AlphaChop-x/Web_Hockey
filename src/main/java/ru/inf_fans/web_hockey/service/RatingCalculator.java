@@ -1,4 +1,4 @@
-package ru.inf_fans.web_hockey.service.rating;
+package ru.inf_fans.web_hockey.service;
 
 public class RatingCalculator {
 

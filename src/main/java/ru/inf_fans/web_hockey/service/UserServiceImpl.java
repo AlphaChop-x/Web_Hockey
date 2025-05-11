@@ -17,7 +17,6 @@ import ru.inf_fans.web_hockey.dto.UserDto;
 import ru.inf_fans.web_hockey.entity.tournament.Tournament;
 import ru.inf_fans.web_hockey.entity.user.UserEntity;
 import ru.inf_fans.web_hockey.mapper.UserEntityMapper;
-import ru.inf_fans.web_hockey.mapper.UserMapper;
 import ru.inf_fans.web_hockey.repository.TournamentRepository;
 import ru.inf_fans.web_hockey.repository.UserRepository;
 
@@ -34,7 +33,6 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
     private final UserEntityMapper userEntityMapper;
-    private final UserMapper userMapper;
     private final PlatformTransactionManager transactionManager;
     private final TournamentRepository tournamentRepository;
 
@@ -64,7 +62,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         TransactionStatus transaction = transactionManager.getTransaction(new DefaultTransactionDefinition());
         try {
             UserEntity userEntity = userRepository.getUserById(userId);
-            UserDto userDto = userMapper.toUserDto(userEntity);
+            UserDto userDto = userEntityMapper.toUserDto(userEntity);
             transactionManager.commit(transaction);
             return userDto;
         } catch (DataAccessException e) {
@@ -123,7 +121,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public UserDto getUserDtoByUserEmail(String email) {
         UserEntity entity = userRepository.findUserByEmail(email);
 
-        return userMapper.toUserDto(entity);
+        return userEntityMapper.toUserDto(entity);
     }
 
     public int getUserIdByName(String name) {

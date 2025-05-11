@@ -12,4 +12,7 @@ public record TournamentApiDto(
         LocalDate startDate,
         LocalDate endDate
 ) {
+    public Long getId() {
+        return id;
+    }
 }

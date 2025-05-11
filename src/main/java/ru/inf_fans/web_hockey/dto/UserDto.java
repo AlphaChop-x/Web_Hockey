@@ -1,5 +1,6 @@
 package ru.inf_fans.web_hockey.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -13,6 +14,7 @@ import ru.inf_fans.web_hockey.validation.PhoneNumberValid;
 import java.util.Date;
 
 @Builder
+@Schema(description = "Пользователь")
 public record UserDto(
         @NotBlank(message = "Имя обязательно к заполнению") String name,
         @NotBlank(message = "Фамилия обязательна к заполнению") String surname,

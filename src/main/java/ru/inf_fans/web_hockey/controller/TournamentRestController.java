@@ -1,97 +1,123 @@
 package ru.inf_fans.web_hockey.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import ru.inf_fans.web_hockey.controller.controllerAdvice.ErrorMessage;
 import ru.inf_fans.web_hockey.dto.TournamentApiDto;
 import ru.inf_fans.web_hockey.dto.UserApiDto;
-import ru.inf_fans.web_hockey.dto.UserDto;
 import ru.inf_fans.web_hockey.entity.tournament.Tournament;
-import ru.inf_fans.web_hockey.mapper.TournamentToDtoMapper;
-import ru.inf_fans.web_hockey.repository.TournamentRepository;
+import ru.inf_fans.web_hockey.mapper.TournamentMapper;
+import ru.inf_fans.web_hockey.service.UserServiceImpl;
+import ru.inf_fans.web_hockey.service.MicroMatchService;
 import ru.inf_fans.web_hockey.service.tournament.TournamentServiceImpl;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RequiredArgsConstructor
 @RestController()
 @RequestMapping("/api/tournaments")
 public class TournamentRestController {
 
-    final TournamentServiceImpl tournamentService;
-    final TournamentToDtoMapper tournamentToDtoMapper;
+    private final TournamentServiceImpl tournamentService;
+    private final TournamentMapper tournamentToDtoMapper;
+    private final UserServiceImpl userServiceImpl;
+    private final MicroMatchService microMatchService;
 
-    /**
-     * Метод, служащий для создания турниров в системе, в теле принимает экземпляр турнира
-     *
-     * @param tournament турнир
-     */
+    @Operation(
+            summary = "Создать турнир",
+            description = "Принимает tournamentDto и создаёт турнир"
+    )
     @PostMapping()
-    public ResponseEntity<String> createTournament(
-            @RequestBody Tournament tournament
+    public ResponseEntity<?> createTournament(
+            @RequestBody TournamentApiDto tournamentDto
     ) {
-        tournamentService.save(tournament);
-        String tournamentName = tournament.getName();
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body("Tournament with name: " + tournamentName + " created!\n");
+
+        try {
+            Tournament tournament = tournamentService.save(tournamentToDtoMapper.toTournament(tournamentDto));
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(tournament);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(new ErrorMessage("Ошибка при создании турнира", e.getMessage()));
+        }
     }
 
+    @Operation(
+            summary = "Получить информацию о турнире",
+            description = "Возвращает поля tournamentApiDto "
+    )
     @GetMapping("/{tournamentId}")
     public ResponseEntity<?> getTournamentInfo(
             @PathVariable Long tournamentId
     ) {
-        Tournament tournament = tournamentService.findTournamentById(tournamentId);
-        TournamentApiDto dto = tournamentToDtoMapper.toApiDto(tournament);
-
-        if (tournament == null) {
+        try {
+            TournamentApiDto tournamentApiDto = tournamentService.findTournamentApiDtoById(tournamentId);
+            return ResponseEntity
+                    .status(HttpStatus.FOUND)
+                    .body(tournamentApiDto);
+        } catch (NullPointerException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body("Tournament with id: " + tournamentId + " not found!");
+                    .body(new ErrorMessage("Турнир с id: " + tournamentId + " не существует", e.getMessage()));
         }
-        return ResponseEntity
-                .status(HttpStatus.FOUND)
-                .body(dto);
     }
 
+    @Operation(
+            summary = "Удалить турнир",
+            description = "Удаляет турнир по заданному id "
+    )
     @DeleteMapping("/{tournamentId}")
     public ResponseEntity<?> deleteTournament(
             @PathVariable Long tournamentId
     ) {
-        return tournamentService.deleteTournament(tournamentId);
-    }
-
-    /**
-     * Метод для регистрации игрока на турнир, на вход получается id турнира (path variable) и id пользователя (request body)
-     *
-     * @param tournamentId id турнира
-     * @param userId       id пользователя
-     */
-    @PostMapping("{tournamentId}/register")
-    public ResponseEntity<?> addPlayerToTournament(
-            @PathVariable Long tournamentId,
-            @RequestBody int userId
-    ) {
-
         try {
-            UserApiDto dto = tournamentService.addUserToTournament(tournamentId, userId);
+            tournamentService.deleteTournament(tournamentId);
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(dto);
-        } catch (Exception e) {
+                    .build();
+        } catch (NoSuchElementException e) {
             return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorMessage("Попытка удалить несуществующий турнир", e.getMessage()));
         }
     }
 
-    /**
-     * Метод, возвращающий список игроков для определённого турнира
-     *
-     * @param tournamentId id турнира
-     */
+    @Operation(
+            summary = "Зарегистрировать пользователя на турнир",
+            description = "Регистрирует пользователя "
+    )
+    @PostMapping("{tournamentId}/register")
+    public ResponseEntity<?> addPlayerToTournament(
+            @PathVariable Long tournamentId,
+            Authentication authentication
+    ) {
+        String email = authentication.getName();
+        int userId = userServiceImpl.getUserIdByName(email);
+
+        try {
+            tournamentService.registerUserToTournament(tournamentId, userId);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .build();
+        }
+    }
+
+    @Operation(
+            summary = "Получить список игроков",
+            description = "Возвращает список игроков по id турнира "
+    )
     @GetMapping("/{tournamentId}/players")
     public ResponseEntity<?> getPlayers(
             @PathVariable Long tournamentId
@@ -100,38 +126,39 @@ public class TournamentRestController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(tournamentPlayers);
+
     }
 
-    /**
-     * Метод для удаления игрока с турнира
-     *
-     * @param tournamentId id турнира
-     * @param playerId     id игрока
-     */
+    @Operation(
+            summary = "Снять игрока с турнира",
+            description = "Удаляет игрока с заданного турнира "
+    )
     @DeleteMapping("/{tournamentId}/players/{playerId}")
     public ResponseEntity<String> deletePlayerFromTournament(
             @PathVariable Long tournamentId,
             @PathVariable int playerId
     ) {
-        tournamentService.DeletePlayerFromTournament(tournamentId, playerId);
+        tournamentService.removePlayerFromTournament(tournamentId, playerId);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body("Players with id - " + playerId + " deleted from tournament!");
+                .body("Игрок с id: " + playerId + " успешно снят с турнира!");
 
     }
 
-    /**
-     * Метод для генерации микро матчей для заданного турнира
-     *
-     * @param tournamentId id турнира
-     */
-    @GetMapping("/{tournamentId}/micro-matches")
-    public ResponseEntity<String> generateMatches(
-            @PathVariable Long tournamentId
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body("Micro-matches generated!");
-    }
+//    /**
+//     * Метод для генерации микро матчей для заданного турнира
+//     *
+//     * @param tournamentId id турнира
+//     */
+//    @GetMapping("/{tournamentId}/micro-matches")
+//    public ResponseEntity<String> generateMatches(
+//            @PathVariable Long tournamentId
+//    ) {
+//        Tournament tournament = tournamentService.findTournamentById(tournamentId);
+//        microMatchService.generateMatches(tournament);
+//        return ResponseEntity
+//                .status(HttpStatus.OK)
+//                .body("Micro-matches generated!");
+//    }
 
 }

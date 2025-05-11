@@ -39,28 +39,56 @@ public class ErrorHandlingControllerAdvice {
 
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(new ErrorMessage("Аккаунт с такой почтой или телефоном уже существует!", message));
+                .body(new ErrorMessage("", message));
     }
+
+    @ExceptionHandler(NotFoundTournamentException.class)
+    public ResponseEntity<ErrorMessage> onNotFoundTournamentException(
+            NotFoundTournamentException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorMessage("Ошибка поиска турнира", exception.getMessage()));
+    }
+
+    @ExceptionHandler(NotFoundUserException.class)
+    public ResponseEntity<ErrorMessage> onNotFoundUserException(
+            NotFoundUserException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorMessage("Ошибка поиска игрока", exception.getMessage()));
+    }
+
+    @ExceptionHandler(UserNotRegisterException.class)
+    public ResponseEntity<ErrorMessage> onUserNotRegisterException(
+            UserNotRegisterException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorMessage("Ошибка снятия игрока с турнира", exception.getMessage()));
+    }
+
 
     @ExceptionHandler(ChangeSetPersister.NotFoundException.class)
     public ResponseEntity<ErrorMessage> notFoundException(ChangeSetPersister.NotFoundException exception) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(new ErrorMessage("",exception.getMessage()));
+                .body(new ErrorMessage("", exception.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorMessage> mismatchException(MethodArgumentTypeMismatchException exception) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(new ErrorMessage("",exception.getMessage()));
+                .body(new ErrorMessage("", exception.getMessage()));
     }
 
     @ExceptionHandler(DuplicateKeyException.class)
     public ResponseEntity<ErrorMessage> duplicateKeyException(DuplicateKeyException exception) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(new ErrorMessage("",exception.getMessage()));
+                .body(new ErrorMessage("Ошибка дубликата ключей ", exception.getMessage()));
     }
 
 }

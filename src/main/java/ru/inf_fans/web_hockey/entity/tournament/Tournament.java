@@ -1,8 +1,12 @@
 package ru.inf_fans.web_hockey.entity.tournament;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import ru.inf_fans.web_hockey.entity.tournament.enums.TournamentFormat;
 import ru.inf_fans.web_hockey.entity.user.UserEntity;
 
@@ -12,9 +16,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Data
 @Entity
+@Setter
+@Getter
 @Table(name = "tournament")
+@ToString(exclude = "players")
 public class Tournament {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +41,7 @@ public class Tournament {
     @Column()
     private Set<MicroMatch> microMatches = new HashSet<>();
 
+    @JsonIgnore
     @ManyToMany()
     @JoinTable(
             name = "app_user_tournament",

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import ru.inf_fans.web_hockey.dto.TournamentApiDto;
 import ru.inf_fans.web_hockey.entity.tournament.Tournament;
 import ru.inf_fans.web_hockey.service.UserServiceImpl;
 import ru.inf_fans.web_hockey.service.tournament.TournamentServiceImpl;
@@ -47,7 +48,7 @@ public class TournamentController {
             @PathVariable(name = "tournamentId") Long tournamentId,
             Model model
     ) {
-        Tournament tournament = tournamentService.findTournamentById(tournamentId);
+        TournamentApiDto tournament = tournamentService.findTournamentApiDtoById(tournamentId);
         model.addAttribute("tournament", tournament);
         return "tournamentPage";
     }
@@ -60,7 +61,7 @@ public class TournamentController {
     ) {
         String email = authentication.getName();
         int userId = userServiceImpl.getUserIdByName(email);
-        tournamentService.addUserToTournament(tournamentId, userId);
+        tournamentService.registerUserToTournament(tournamentId, userId);
         return "/tournaments";
     }
 }
