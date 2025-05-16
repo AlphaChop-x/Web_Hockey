@@ -8,8 +8,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.inf_fans.web_hockey.dto.MatchPlayerDto;
 import ru.inf_fans.web_hockey.dto.TournamentApiDto;
-import ru.inf_fans.web_hockey.entity.tournament.Tournament;
-import ru.inf_fans.web_hockey.entity.user.UserEntity;
+import ru.inf_fans.web_hockey.entity.Tournament;
+import ru.inf_fans.web_hockey.entity.User;
 
 import java.util.List;
 
@@ -18,10 +18,10 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
     @Transactional
     @Modifying
     @Query(value =
-            "INSERT INTO app_user_tournament (tournament_id, user_entity_id) " +
+            "INSERT INTO app_user_tournament (tournament_id, user_id) " +
                     "VALUES (:tournamentId, :playerId)", nativeQuery = true)
     void addPlayerToTournament(@Param("tournamentId") Long tournamentId,
-                               @Param("playerId") int playerId);
+                               @Param("playerId") Long playerId);
 
     @Transactional
     Tournament findTournamentsById(Long tournamentId);
@@ -32,7 +32,7 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
     TournamentApiDto findTournamentDtoById(@Param("tournamentId") Long tournamentId);
 
     @Query("SELECT u FROM Tournament t JOIN t.players u WHERE t.id = :tournamentId")
-    List<UserEntity> findPlayersById(Long tournamentId);
+    List<User> findPlayersById(Long tournamentId);
 
     @Query("SELECT new ru.inf_fans.web_hockey.dto.MatchPlayerDto(u.name, u.surname, u.email, u.born, u.rating) " +
             "FROM Tournament t JOIN t.players u WHERE t.id = :tournamentId")
@@ -49,13 +49,13 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
     String findTournament_IdByName(String tournamentName);
 
     @Query("SELECT u FROM Tournament t JOIN t.players u WHERE t.id = :tournamentId AND u.id = :userEntityId")
-    UserEntity findUserByTournament_IdAndUserId(Long tournamentId, int userEntityId);
+    User findUserByTournament_IdAndUserId(Long tournamentId, Long userEntityId);
 
     @Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END " +
             "FROM Tournament t JOIN t.players p " +
             "WHERE t.id = :tournamentId AND p.id = :userId")
     boolean isUserRegistered(
             @Param("tournamentId") Long tournamentId,
-            @Param("userId") int userId);
+            @Param("userId") Long userId);
 
 }

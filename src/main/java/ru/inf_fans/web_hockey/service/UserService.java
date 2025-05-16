@@ -1,13 +1,11 @@
 package ru.inf_fans.web_hockey.service;
 
-import ru.inf_fans.web_hockey.dto.UserDto;
-import ru.inf_fans.web_hockey.entity.user.UserEntity;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
-public interface UserService {
+public interface UserService extends UserDetailsService {
 
-    UserDto createUser(UserDto userDto);
+    boolean existsByEmail(String email);
 
-    UserDto getUser(int userId);
+    boolean existsByPhonenumber(String username);
 
-    void deleteUser(int userId);
 }

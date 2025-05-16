@@ -1,11 +1,8 @@
-package ru.inf_fans.web_hockey.entity.tournament;
+package ru.inf_fans.web_hockey.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import ru.inf_fans.web_hockey.dto.MatchPlayerDto;
-import ru.inf_fans.web_hockey.entity.user.UserEntity;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -31,9 +28,9 @@ public class Team {
             joinColumns = @JoinColumn(name = "team_id"),
             inverseJoinColumns = @JoinColumn(name = "player_id")
     )
-    private Set<UserEntity> players = new HashSet<>();
+    private Set<User> players = new HashSet<>();
 
-    public Team(Set<UserEntity> players) {
+    public Team(Set<User> players) {
         this.players = players;
     }
 
@@ -45,14 +42,14 @@ public class Team {
         return players.size();
     }
 
-    public void add(UserEntity player) {
+    public void add(User player) {
         players.add(player);
     }
 
     @Override
     public String toString() {
         return String.format("Team{players=%s}",
-                players.stream().map(UserEntity::toString).collect(Collectors.toList()));
+                players.stream().map(User::toString).collect(Collectors.toList()));
     }
 
     @Override

@@ -2,12 +2,12 @@ package ru.inf_fans.web_hockey.mapper;
 
 import org.springframework.stereotype.Component;
 import ru.inf_fans.web_hockey.dto.MatchPlayerDto;
-import ru.inf_fans.web_hockey.entity.user.UserEntity;
+import ru.inf_fans.web_hockey.entity.User;
 
 @Component
 public class MatchPlayerMapper {
 
-    public MatchPlayerDto toDto(UserEntity user) {
+    public MatchPlayerDto toDto(User user) {
         if (user == null) {
             return null;
         }

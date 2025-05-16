@@ -2,7 +2,8 @@ package ru.inf_fans.web_hockey.mapper;
 
 import org.springframework.stereotype.Component;
 import ru.inf_fans.web_hockey.dto.TournamentApiDto;
-import ru.inf_fans.web_hockey.entity.tournament.Tournament;
+import ru.inf_fans.web_hockey.dto.TournamentRequestDto;
+import ru.inf_fans.web_hockey.entity.Tournament;
 
 import java.time.LocalDate;
 
@@ -26,6 +27,17 @@ public class TournamentMapper {
         tournament.setStartDate(tournamentDto.startDate());
         tournament.setEndDate(tournamentDto.endDate());
         tournament.setLocation(tournamentDto.location());
+
+        return tournament;
+    }
+
+    public Tournament fromTournamentRequestToEntity(TournamentRequestDto tournamentDto) {
+        Tournament tournament = new Tournament();
+
+        tournament.setName(tournamentDto.getTournamentName());
+        tournament.setLocation(tournamentDto.getLocation());
+        tournament.setStartDate(tournamentDto.getTournamentStartDate());
+        tournament.setEndDate(tournamentDto.getTournamentEndDate());
 
         return tournament;
     }

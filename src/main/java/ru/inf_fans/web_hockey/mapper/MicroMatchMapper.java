@@ -3,9 +3,8 @@ package ru.inf_fans.web_hockey.mapper;
 import org.springframework.stereotype.Component;
 import ru.inf_fans.web_hockey.dto.MicroMatchDto;
 import ru.inf_fans.web_hockey.dto.MatchPlayerDto;
-import ru.inf_fans.web_hockey.mapper.MatchPlayerMapper;
-import ru.inf_fans.web_hockey.entity.tournament.MicroMatch;
-import ru.inf_fans.web_hockey.entity.user.UserEntity;
+import ru.inf_fans.web_hockey.entity.MicroMatch;
+import ru.inf_fans.web_hockey.entity.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +35,7 @@ public class MicroMatchMapper {
         return dto;
     }
 
-    private List<MatchPlayerDto> toMatchPlayerDtoList(List<UserEntity> players) {
+    private List<MatchPlayerDto> toMatchPlayerDtoList(List<User> players) {
         return players.stream()
                 .map(matchPlayerMapper::toDto)
                 .collect(Collectors.toList());

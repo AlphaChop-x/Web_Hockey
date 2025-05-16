@@ -1,4 +1,4 @@
-package ru.inf_fans.web_hockey.entity.tournament.enums;
+package ru.inf_fans.web_hockey.entity.enums;
 
 public enum MatchStatus {
     SCHEDULED,

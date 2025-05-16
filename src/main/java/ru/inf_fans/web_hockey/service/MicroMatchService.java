@@ -5,11 +5,11 @@ import org.springframework.stereotype.Service;
 import ru.inf_fans.web_hockey.dto.MatchPlayerDto;
 import ru.inf_fans.web_hockey.dto.MicroMatchDto;
 import ru.inf_fans.web_hockey.dto.TournamentApiDto;
-import ru.inf_fans.web_hockey.entity.tournament.MicroMatch;
-import ru.inf_fans.web_hockey.entity.tournament.Team;
-import ru.inf_fans.web_hockey.entity.tournament.Tournament;
-import ru.inf_fans.web_hockey.entity.tournament.enums.MatchStatus;
-import ru.inf_fans.web_hockey.entity.user.UserEntity;
+import ru.inf_fans.web_hockey.entity.MicroMatch;
+import ru.inf_fans.web_hockey.entity.Team;
+import ru.inf_fans.web_hockey.entity.Tournament;
+import ru.inf_fans.web_hockey.entity.enums.MatchStatus;
+import ru.inf_fans.web_hockey.entity.User;
 import ru.inf_fans.web_hockey.mapper.MatchPlayerMapper;
 import ru.inf_fans.web_hockey.mapper.MicroMatchMapper;
 import ru.inf_fans.web_hockey.repository.MicroMatchRepository;
@@ -94,11 +94,11 @@ public class MicroMatchService {
 
         for (MatchPlayerDto player : players) {
             if (sumA <= sumB && teamA.size() < teamSize) {
-                UserEntity entity = userRepository.findUserByEmail(player.getEmail());
+                User entity = userRepository.findUserByEmail(player.getEmail());
                 teamA.add(entity);
                 sumA += player.getRating();
             } else {
-                UserEntity entity = userRepository.findUserByEmail(player.getEmail());
+                User entity = userRepository.findUserByEmail(player.getEmail());
                 teamB.add(entity);
                 sumB += player.getRating();
             }

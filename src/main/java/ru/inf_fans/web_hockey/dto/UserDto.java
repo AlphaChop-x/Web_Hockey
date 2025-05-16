@@ -6,8 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import org.springframework.format.annotation.DateTimeFormat;
-import ru.inf_fans.web_hockey.entity.user.enums.Gender;
-import ru.inf_fans.web_hockey.entity.user.enums.RussianHockeyRank;
+import ru.inf_fans.web_hockey.entity.enums.Gender;
 import ru.inf_fans.web_hockey.validation.EmailValid;
 import ru.inf_fans.web_hockey.validation.PhoneNumberValid;
 
@@ -26,6 +25,5 @@ public record UserDto(
         String phoneNumber,
         @NotNull(message = "Пол обязателен к заполнению") Gender gender,
         @NotNull(message = "Дата рождения обязательна") @DateTimeFormat(pattern = "yyyy-MM-dd") Date born,
-        @NotNull(message = "Ранг обязателен") RussianHockeyRank rank,
         Float rating) {
 }

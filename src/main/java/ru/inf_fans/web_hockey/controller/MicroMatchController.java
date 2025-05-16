@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.inf_fans.web_hockey.dto.MicroMatchDto;
 import ru.inf_fans.web_hockey.dto.TournamentApiDto;
-import ru.inf_fans.web_hockey.entity.tournament.MicroMatch;
 import ru.inf_fans.web_hockey.service.MicroMatchService;
 import ru.inf_fans.web_hockey.service.tournament.TournamentServiceImpl;
 

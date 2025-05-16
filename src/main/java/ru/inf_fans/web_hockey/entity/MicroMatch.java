@@ -1,17 +1,12 @@
-package ru.inf_fans.web_hockey.entity.tournament;
+package ru.inf_fans.web_hockey.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import ru.inf_fans.web_hockey.dto.TournamentApiDto;
-import ru.inf_fans.web_hockey.entity.tournament.enums.MatchStatus;
-import ru.inf_fans.web_hockey.entity.user.UserEntity;
+import ru.inf_fans.web_hockey.entity.enums.MatchStatus;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -52,7 +47,7 @@ public class MicroMatch {
 
     }
 
-    public MicroMatch(List<UserEntity> team, List<UserEntity> opposingTeam, Tournament tournament) {
+    public MicroMatch(List<User> team, List<User> opposingTeam, Tournament tournament) {
 
     }
 

@@ -1,80 +1,80 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
-      lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title style="font-size: 20px">Register new userEntity</title>
-</head>
-<body>
-<div class="content" style="text-align: center; padding-top: 100px">
-    <form method="POST" th:action="@{/register}" id="registration-form" th:object="${userDto}">
+<!--<!DOCTYPE html>-->
+<!--<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"-->
+<!--      lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title style="font-size: 20px">Register new user</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--<div class="content" style="text-align: center; padding-top: 100px">-->
+<!--    <form method="POST" th:action="@{/register}" id="registration-form" th:object="${userDto}">-->
 
-        <h2>Register new userEntity</h2>
+<!--        <h2>Register new user</h2>-->
 
-        <label for="name">Name: </label>
-        <br/><input type="text" name="name" id="name"
-                    th:class="${#fields.hasErrors('name')} ? 'input-error'"/>
-        <br/><span th:if="${#fields.hasErrors('name')}" class="error"
-                   th:errors="*{name}" style="color: #ff111b; font-size: 16px">Name error!</span>
+<!--        <label for="name">Name: </label>-->
+<!--        <br/><input type="text" name="name" id="name"-->
+<!--                    th:class="${#fields.hasErrors('name')} ? 'input-error'"/>-->
+<!--        <br/><span th:if="${#fields.hasErrors('name')}" class="error"-->
+<!--                   th:errors="*{name}" style="color: #ff111b; font-size: 16px">Name error!</span>-->
 
-        <br/><label for="surname">Surname: </label>
-        <br/><input type="text" name="surname" id="surname"
-                    th:class="${#fields.hasErrors('surname')} ? 'input-error'"/>
-        <br/><span th:if="${#fields.hasErrors('surname')}" class="error"
-                   th:errors="*{surname}" style="color: #ff111b; font-size: 16px">Surname error!</span>
+<!--        <br/><label for="surname">Surname: </label>-->
+<!--        <br/><input type="text" name="surname" id="surname"-->
+<!--                    th:class="${#fields.hasErrors('surname')} ? 'input-error'"/>-->
+<!--        <br/><span th:if="${#fields.hasErrors('surname')}" class="error"-->
+<!--                   th:errors="*{surname}" style="color: #ff111b; font-size: 16px">Surname error!</span>-->
 
-        <br/><label for="patronymic">Patronymic: </label>
-        <br/><input type="text" name="patronymic" id="patronymic"
-                    th:class="${#fields.hasErrors('patronymic')} ? 'input-error'"/>
-        <br/><span th:if="${#fields.hasErrors('patronymic')}" class="error"
-                   th:errors="*{patronymic}" style="color: #ff111b; font-size: 16px">Patronymic error!</span>
+<!--        <br/><label for="patronymic">Patronymic: </label>-->
+<!--        <br/><input type="text" name="patronymic" id="patronymic"-->
+<!--                    th:class="${#fields.hasErrors('patronymic')} ? 'input-error'"/>-->
+<!--        <br/><span th:if="${#fields.hasErrors('patronymic')}" class="error"-->
+<!--                   th:errors="*{patronymic}" style="color: #ff111b; font-size: 16px">Patronymic error!</span>-->
 
-        <br/><label for="email">Email: </label>
-        <br/><input type="text" name="email" id="email"
-                    th:class="${#fields.hasErrors('email')} ? 'input-error'"/>
-        <br/><span th:if="${#fields.hasErrors('email')}" class="error"
-                   th:errors="*{email}" style="color: #ff111b; font-size: 16px">Email error!</span>
+<!--        <br/><label for="email">Email: </label>-->
+<!--        <br/><input type="text" name="email" id="email"-->
+<!--                    th:class="${#fields.hasErrors('email')} ? 'input-error'"/>-->
+<!--        <br/><span th:if="${#fields.hasErrors('email')}" class="error"-->
+<!--                   th:errors="*{email}" style="color: #ff111b; font-size: 16px">Email error!</span>-->
 
-        <br/><label for="phoneNumber">Phone number: : </label>
-        <br/><input type="text" name="phoneNumber" id="phoneNumber"
-                    th:class="${#fields.hasErrors('phoneNumber')} ? 'input-error'"/>
-        <br/><span th:if="${#fields.hasErrors('phoneNumber')}" class="error"
-                   th:errors="*{phoneNumber}" style="color: #ff111b; font-size: 16px">Phone number!</span>
+<!--        <br/><label for="phoneNumber">Phone number: : </label>-->
+<!--        <br/><input type="text" name="phoneNumber" id="phoneNumber"-->
+<!--                    th:class="${#fields.hasErrors('phoneNumber')} ? 'input-error'"/>-->
+<!--        <br/><span th:if="${#fields.hasErrors('phoneNumber')}" class="error"-->
+<!--                   th:errors="*{phoneNumber}" style="color: #ff111b; font-size: 16px">Phone number!</span>-->
 
-        <br/><label for="gender">Gender: (type MALE or FEMALE) </label>
-        <br/><input type="text" name="gender" id="gender"
-                    th:class="${#fields.hasErrors('gender')} ? 'input-error'"/>
-        <br/><span th:if="${#fields.hasErrors('gender')}" class="error"
-                   th:errors="*{gender}" style="color: #ff111b; font-size: 16px">Gender error!</span>
+<!--        <br/><label for="gender">Gender: (type MALE or FEMALE) </label>-->
+<!--        <br/><input type="text" name="gender" id="gender"-->
+<!--                    th:class="${#fields.hasErrors('gender')} ? 'input-error'"/>-->
+<!--        <br/><span th:if="${#fields.hasErrors('gender')}" class="error"-->
+<!--                   th:errors="*{gender}" style="color: #ff111b; font-size: 16px">Gender error!</span>-->
 
-        <br/><label for="born">Date of birth: </label>
-        <br/><input type="date" name="born" id="born"
-                    th:class="${#fields.hasErrors('born')} ? 'input-error'"/>
-        <br/><span th:if="${#fields.hasErrors('born')}" class="error"
-                   th:errors="*{born}" style="color: #ff111b; font-size: 16px">Age error!</span>
+<!--        <br/><label for="born">Date of birth: </label>-->
+<!--        <br/><input type="date" name="born" id="born"-->
+<!--                    th:class="${#fields.hasErrors('born')} ? 'input-error'"/>-->
+<!--        <br/><span th:if="${#fields.hasErrors('born')}" class="error"-->
+<!--                   th:errors="*{born}" style="color: #ff111b; font-size: 16px">Age error!</span>-->
 
-        <br/><label for="rank">Rank: </label>
-        <br/><input type="text" name="rank" id="rank"
-                    th:class="${#fields.hasErrors('rank')} ? 'input-error'"/>
-        <br/><span th:if="${#fields.hasErrors('rank')}" class="error"
-                   th:errors="*{rank}" style="color: #ff111b; font-size: 16px">Rank error</span>
+<!--        <br/><label for="rank">Rank: </label>-->
+<!--        <br/><input type="text" name="rank" id="rank"-->
+<!--                    th:class="${#fields.hasErrors('rank')} ? 'input-error'"/>-->
+<!--        <br/><span th:if="${#fields.hasErrors('rank')}" class="error"-->
+<!--                   th:errors="*{rank}" style="color: #ff111b; font-size: 16px">Rank error</span>-->
 
-        <br/><label for="password">Password: </label>
-        <br/><input type="password" name="password" id="password"
-                    th:class="${#fields.hasErrors('password')} ? 'input-error'"/>
-        <br/><span th:if="${#fields.hasErrors('password')}" class="error"
-                   th:errors="*{password}" style="color: #ff111b; font-size: 16px">Password error</span>
+<!--        <br/><label for="password">Password: </label>-->
+<!--        <br/><input type="password" name="password" id="password"-->
+<!--                    th:class="${#fields.hasErrors('password')} ? 'input-error'"/>-->
+<!--        <br/><span th:if="${#fields.hasErrors('password')}" class="error"-->
+<!--                   th:errors="*{password}" style="color: #ff111b; font-size: 16px">Password error</span>-->
 
-        <br/><label for="retypedPassword"> RetypePassword: </label>
-        <br/><input type="password" name="retypedPassword" id="retypedPassword"/>
-        <br/><span th:if="${passwordsNotEquals != null}"
-                   style="font-family: monospace; color: #ff111b; text-align: center; font-size: 16px">
-            Passwords not equals, please retype them!
-        </span>
-        <p>
-            <button type="submit" class="primary">Register</button>
-        </p>
-    </form>
-</div>
-</body>
-</html>
+<!--        <br/><label for="retypedPassword"> RetypePassword: </label>-->
+<!--        <br/><input type="password" name="retypedPassword" id="retypedPassword"/>-->
+<!--        <br/><span th:if="${passwordsNotEquals != null}"-->
+<!--                   style="font-family: monospace; color: #ff111b; text-align: center; font-size: 16px">-->
+<!--            Passwords not equals, please retype them!-->
+<!--        </span>-->
+<!--        <p>-->
+<!--            <button type="submit" class="primary">Register</button>-->
+<!--        </p>-->
+<!--    </form>-->
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->

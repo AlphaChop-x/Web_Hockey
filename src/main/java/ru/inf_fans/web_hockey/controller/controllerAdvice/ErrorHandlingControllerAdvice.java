@@ -5,6 +5,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -60,13 +61,40 @@ public class ErrorHandlingControllerAdvice {
                 .body(new ErrorMessage("Ошибка поиска игрока", exception.getMessage()));
     }
 
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorMessage> onAuthenticationException(
+            AuthenticationException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorMessage("Ошибка авторизации", exception.getMessage()));
+    }
+
     @ExceptionHandler(UserNotRegisterException.class)
     public ResponseEntity<ErrorMessage> onUserNotRegisterException(
             UserNotRegisterException exception
     ) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(new ErrorMessage("Ошибка снятия игрока с турнира", exception.getMessage()));
+                .body(new ErrorMessage("Ошибка регистрации пользователя", exception.getMessage()));
+    }
+
+    @ExceptionHandler(AlreadyRegisteredEmailException.class)
+    public ResponseEntity<ErrorMessage> onAlreadyRegisteredEmailException(
+            AlreadyRegisteredEmailException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorMessage("Пользователь с такой почтой уже зарегистрирован", exception.getMessage()));
+    }
+
+    @ExceptionHandler(AlreadyRegisteredPhoneNumberException.class)
+    public ResponseEntity<ErrorMessage> onAlreadyRegisteredPhoneNumberException(
+            AlreadyRegisteredPhoneNumberException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorMessage("Пользователь с таким номером телефона уже зарегистрирован", exception.getMessage()));
     }
 
 

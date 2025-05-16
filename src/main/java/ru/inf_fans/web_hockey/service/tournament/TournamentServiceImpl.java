@@ -7,22 +7,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 import ru.inf_fans.web_hockey.controller.controllerAdvice.NotFoundTournamentException;
 import ru.inf_fans.web_hockey.controller.controllerAdvice.NotFoundUserException;
 import ru.inf_fans.web_hockey.controller.controllerAdvice.UserNotRegisterException;
-import ru.inf_fans.web_hockey.dto.MatchPlayerDto;
-import ru.inf_fans.web_hockey.dto.TournamentApiDto;
-import ru.inf_fans.web_hockey.dto.UserApiDto;
-import ru.inf_fans.web_hockey.entity.tournament.Tournament;
-import ru.inf_fans.web_hockey.entity.user.UserEntity;
+import ru.inf_fans.web_hockey.dto.*;
+import ru.inf_fans.web_hockey.entity.Tournament;
+import ru.inf_fans.web_hockey.entity.User;
 import ru.inf_fans.web_hockey.mapper.TournamentMapper;
 import ru.inf_fans.web_hockey.mapper.UserApiDtoMapper;
 import ru.inf_fans.web_hockey.repository.TournamentRepository;
 import ru.inf_fans.web_hockey.repository.UserRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -30,12 +27,14 @@ public class TournamentServiceImpl implements TournamentService {
 
     private final UserApiDtoMapper userApiDtoMapper;
     private final UserRepository userRepository;
-    private final TournamentMapper tournamentToDtoMapper;
+    private final TournamentMapper tournamentMapper;
     private final TournamentRepository tournamentRepository;
     private final PlatformTransactionManager transactionManager;
 
 
-    public void createTournament(Tournament tournament) {
+    public void createTournament(TournamentRequestDto tournamentDto) {
+
+        Tournament tournament = tournamentMapper.fromTournamentRequestToEntity(tournamentDto);
         tournamentRepository.save(tournament);
 
         new ResponseEntity<>("Tournament created", HttpStatus.CREATED);
@@ -54,7 +53,12 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     @Transactional
-    public void registerUserToTournament(Long tournament_id, int user_id) {
+    public void registerUserToTournament(Long tournament_id, String email) {
+
+        Long user_id = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email))
+                .getId();
+
         if (tournamentRepository.isUserRegistered(tournament_id, user_id)) {
             throw new DuplicateKeyException(
                     "User " + user_id + " is already registered to tournament " + tournament_id
@@ -71,10 +75,10 @@ public class TournamentServiceImpl implements TournamentService {
                     "Tournament with id " + tournamentId + " not found"
             );
         }
-        List<UserEntity> userEntities = tournamentRepository.findPlayersById(tournamentId);
+        List<User> userEntities = tournamentRepository.findPlayersById(tournamentId);
         List<UserApiDto> usersDto = new ArrayList<>();
-        for (UserEntity userEntity : userEntities) {
-            usersDto.add(userApiDtoMapper.toUserApiDto(userEntity));
+        for (User user : userEntities) {
+            usersDto.add(userApiDtoMapper.toUserApiDto(user));
         }
         return usersDto;
     }
@@ -98,20 +102,20 @@ public class TournamentServiceImpl implements TournamentService {
         if (tournament == null) {
             throw new NotFoundTournamentException("Tournament with id " + tournament_id + " not found!");
         }
-        UserEntity userEntity = userRepository.findUserById(user_id);
-        if (userEntity == null) {
+        User user = userRepository.findUserById(user_id);
+        if (user == null) {
             throw new NotFoundUserException("User with id " + user_id + " not found!");
         }
-        if (!tournament.getPlayers().contains(userEntity)) {
+        if (!tournament.getPlayers().contains(user)) {
             throw new UserNotRegisterException("Игрок и так не зарегистрирован на турнир!");
         }
 
         //Удаляем турнир из турниров игрока и игрока из списка участников
-        tournament.getPlayers().remove(userEntity);
-        userEntity.getTournament().remove(tournament);
+        tournament.getPlayers().remove(user);
+        user.getTournament().remove(tournament);
 
         tournamentRepository.save(tournament);
-        userRepository.save(userEntity);
+        userRepository.save(user);
     }
 
     public Tournament save(Tournament tournament) {
@@ -130,10 +134,35 @@ public class TournamentServiceImpl implements TournamentService {
     }
 
     public TournamentApiDto findTournamentApiDtoById(Long tournament_id) {
-        return tournamentToDtoMapper.toApiDto(tournamentRepository.findTournamentsById(tournament_id));
+        return tournamentMapper.toApiDto(tournamentRepository.findTournamentsById(tournament_id));
     }
 
     public Tournament findTournamentById(Long tournament_id) {
         return tournamentRepository.findTournamentsById(tournament_id);
+    }
+
+    public TournamentResponseDto findTournamentResponseById(Long tournament_id) {
+
+        Tournament tournament = null;
+        try {
+            tournament = tournamentRepository.findTournamentsById(tournament_id);
+        } catch (Exception e) {
+            throw new NotFoundTournamentException("Турнир с id: " + tournament_id + " не найден!");
+        }
+
+        TournamentResponseDto dto = new TournamentResponseDto();
+        UserApiDtoMapper userApiDtoMapper = new UserApiDtoMapper();
+
+
+        dto.setTournamentName(tournament.getName());
+        dto.setLocation(tournament.getLocation());
+        dto.setParticipants(tournament.getPlayers().stream()
+                .map(userApiDtoMapper::toUserApiDto)
+                .collect(Collectors.toList())
+        );
+        dto.setTournamentStartDate(tournament.getStartDate());
+        dto.setTournamentEndDate(tournament.getEndDate());
+
+        return dto;
     }
 }
