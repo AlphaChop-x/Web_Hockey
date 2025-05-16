@@ -1,4 +1,4 @@
-# Используем официальный образ Java 17
+# Используем официальный образ Java 21
 FROM eclipse-temurin:21-jdk
 
 # Рабочая директория внутри контейнера
@@ -12,3 +12,5 @@ EXPOSE 8080
 
 # Команда запуска приложения
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
+COPY application.yml ./config/

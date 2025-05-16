@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: web_hockey
+  #settings of postgres
+  datasource:
+    url: jdbc:postgresql://db:5432/web_hockey_database
+    username: postgres
+    password: password
+    driverClassName: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: true
+#Security
+security:
+  jwt:
+    secret_key: 4eaa9df3748984456a1766a2a425aa856c4976dcf59e510317e8f20891395af3
+    access_token_expiration: 36000000 # 10 hours
+    refresh_token_expiration: 252000000 # 7 days
