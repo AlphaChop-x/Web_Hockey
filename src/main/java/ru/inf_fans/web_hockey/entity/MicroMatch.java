@@ -6,6 +6,7 @@ import lombok.Setter;
 import ru.inf_fans.web_hockey.entity.enums.MatchStatus;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -30,9 +31,9 @@ public class MicroMatch {
     private Team secondTeam;
 
     @Column()
-    private LocalDate startDate;
+    private LocalDateTime startDate;
     @Column()
-    private LocalDate endDate;
+    private LocalDateTime endDate;
 
     @Column()
     private int firstTeamScore;

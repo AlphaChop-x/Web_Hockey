@@ -96,7 +96,7 @@ public class TournamentServiceImpl implements TournamentService {
     @Transactional
     public void removePlayerFromTournament(
             Long tournament_id,
-            int user_id
+            Long user_id
     ) {
         Tournament tournament = tournamentRepository.findTournamentsById(tournament_id);
         if (tournament == null) {

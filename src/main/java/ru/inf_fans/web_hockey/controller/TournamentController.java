@@ -1,21 +1,14 @@
 package ru.inf_fans.web_hockey.controller;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.inf_fans.web_hockey.dto.TournamentApiDto;
 import ru.inf_fans.web_hockey.dto.TournamentRequestDto;
 import ru.inf_fans.web_hockey.dto.TournamentResponseDto;
 import ru.inf_fans.web_hockey.entity.Tournament;
-import ru.inf_fans.web_hockey.entity.User;
-import ru.inf_fans.web_hockey.service.UserServiceImpl;
 import ru.inf_fans.web_hockey.service.tournament.TournamentServiceImpl;
 
 import java.util.List;
@@ -24,7 +17,6 @@ import java.util.List;
 @RestController
 public class TournamentController {
 
-    private final UserServiceImpl userService;
     private final TournamentServiceImpl tournamentService;
 
     @GetMapping("/tournaments")

@@ -1,6 +1,8 @@
 package ru.inf_fans.web_hockey.mapper;
 
 import org.springframework.stereotype.Component;
+import ru.inf_fans.web_hockey.dto.CompactUserDto;
+import ru.inf_fans.web_hockey.dto.UserApiDto;
 import ru.inf_fans.web_hockey.dto.UserDto;
 import ru.inf_fans.web_hockey.entity.User;
 import ru.inf_fans.web_hockey.entity.enums.Gender;
@@ -9,6 +11,17 @@ import java.util.Date;
 
 @Component
 public class UserEntityMapper {
+
+    public CompactUserDto toCompactUserDto(User user) {
+        CompactUserDto compactUserDto = new CompactUserDto();
+
+        compactUserDto.setId(user.getId());
+        compactUserDto.setName(user.getName());
+        compactUserDto.setSurname(user.getSurname());
+        compactUserDto.setRating(user.getRating());
+
+        return compactUserDto;
+    }
 
     public User toUserEntity(UserDto userDto) {
         User user = new User();

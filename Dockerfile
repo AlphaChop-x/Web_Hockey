@@ -2,10 +2,10 @@
 FROM eclipse-temurin:21-jdk
 
 # Рабочая директория внутри контейнера
-WORKDIR /app
+WORKDIR /
 
 # Копируем JAR-файл (предварительно собранный через Maven/Gradle)
-COPY target/web_hockey-0.0.1-SNAPSHOT.jar app.jar
+COPY web_hockey-0.0.1-SNAPSHOT.jar app.jar
 
 # Указываем порт, который будет слушать приложение
 EXPOSE 8080

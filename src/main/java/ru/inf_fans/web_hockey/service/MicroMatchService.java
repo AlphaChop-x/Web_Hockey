@@ -1,5 +1,6 @@
 package ru.inf_fans.web_hockey.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.inf_fans.web_hockey.dto.MatchPlayerDto;
@@ -17,6 +18,8 @@ import ru.inf_fans.web_hockey.repository.TeamRepository;
 import ru.inf_fans.web_hockey.repository.UserRepository;
 import ru.inf_fans.web_hockey.service.tournament.TournamentServiceImpl;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -32,16 +35,23 @@ public class MicroMatchService {
     private final MicroMatchRepository microMatchRepository;
     private final MatchPlayerMapper matchPlayerMapper;
     private final MicroMatchMapper microMatchMapper;
+    private final MatchStatusService matchStatusService;
     int teamSize = 4;
 
     public List<MicroMatchDto> generateMatches(TournamentApiDto tournament) {
-
         List<MicroMatch> matches = new ArrayList<>();
         List<MatchPlayerDto> availablePlayers = tournamentService.findAllTournamentPlayersEntity(tournament.getId());
         Tournament tournamentEntity = tournamentService.findTournamentById(tournament.getId());
 
-        //Сортировка игроков по рейтингу
+        // Сортировка игроков по рейтингу
         availablePlayers.sort(Comparator.comparingDouble(MatchPlayerDto::getRating));
+
+        // Начальное время первого матча (через 1 день от начала турнира в 00:00)
+        LocalDateTime currentMatchTime = tournamentEntity.getStartDate().plusDays(1).atStartOfDay();
+        // Длительность матча (1 минута)
+        Duration matchDuration = Duration.ofMinutes(1);
+        // Перерыв между матчами (1.5 минуты)
+        Duration breakDuration = Duration.ofMillis(90_000);
 
         while (availablePlayers.size() >= 2 * teamSize) {
             // Берем первых N игроков (чтобы избежать сильного дисбаланса)
@@ -57,12 +67,13 @@ public class MicroMatchService {
 
             // Создаем матч
             MicroMatch match = new MicroMatch(tournamentEntity, teams.getFirst(), teams.getLast());
-
             match.setStatus(MatchStatus.SCHEDULED);
-            match.setStartDate(tournamentEntity.getStartDate().plusDays(1));
-            match.setEndDate(tournamentEntity.getEndDate().minusDays(1));
-            microMatchRepository.save(match);
 
+            // Устанавливаем время начала и окончания матча
+            match.setStartDate(currentMatchTime);
+            match.setEndDate(currentMatchTime.plus(matchDuration));
+
+            microMatchRepository.save(match);
             matches.add(match);
 
             // Удаляем игроков из доступных (чтобы не повторялись)
@@ -70,17 +81,19 @@ public class MicroMatchService {
                     teams.getFirst().getPlayers().stream()
                             .map(matchPlayerMapper::toDto)
                             .toList());
-
             availablePlayers.removeAll(
                     teams.getLast().getPlayers().stream()
                             .map(matchPlayerMapper::toDto)
                             .toList()
             );
+
+            // Увеличиваем время для следующего матча
+            currentMatchTime = currentMatchTime.plus(matchDuration).plus(breakDuration);
         }
+
         return matches.stream()
                 .map(microMatchMapper::toDto)
                 .collect(Collectors.toList());
-
     }
 
     // Балансировка команд (жадный алгоритм)
@@ -110,11 +123,7 @@ public class MicroMatchService {
         return List.of(teamA, teamB);
     }
 
-    public List<MicroMatch> getMicroMatches(Long tournamentId) {
-        return microMatchRepository.getMicroMatchesByTournament_Id(tournamentId);
-    }
-
-    public List<MicroMatchDto> getMicroMatchDtoes(
+    public List<MicroMatchDto> getMicroMatchDtos(
             Long tournamentId
     ) {
         List<MicroMatch> microMatches = microMatchRepository.getMicroMatchesByTournament_Id(tournamentId);
@@ -123,5 +132,20 @@ public class MicroMatchService {
             dtos.add(microMatchMapper.toDto(microMatch));
         }
         return dtos;
+    }
+
+    @Transactional
+    public MicroMatch updateMatchTiming(Long matchId, LocalDateTime newStartDate, LocalDateTime newEndDate) {
+        MicroMatch match = microMatchRepository.findById(matchId)
+                .orElseThrow(() -> new RuntimeException("Match not found"));
+
+        match.setStartDate(newStartDate);
+        match.setEndDate(newEndDate);
+
+        if (match.getStatus() == MatchStatus.SCHEDULED) {
+            matchStatusService.scheduleMatch(match);
+        }
+
+        return microMatchRepository.save(match);
     }
 }

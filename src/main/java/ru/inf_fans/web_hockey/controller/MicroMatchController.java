@@ -47,7 +47,7 @@ public class MicroMatchController {
     public ResponseEntity<?> getMicroMatches(
             @PathVariable Long tournamentId
     ) {
-        List<MicroMatchDto> microMatchDtos = microMatchService.getMicroMatchDtoes(tournamentId);
+        List<MicroMatchDto> microMatchDtos = microMatchService.getMicroMatchDtos(tournamentId);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
