@@ -1,5 +1,8 @@
 package ru.inf_fans.web_hockey.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +14,7 @@ import ru.inf_fans.web_hockey.service.UserServiceImpl;
 
 import java.util.List;
 
+@Tag(name = "Контроллер пользователей", description = "Контроллер для работы с пользователями, удаление, регистрация, получения списка и т.д")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
@@ -19,6 +23,9 @@ public class UserController {
     private final AuthenticationService authenticationService;
     private final UserServiceImpl userService;
 
+    @Operation(
+            summary = "Зарегистрировать множество пользователей за раз"
+    )
     @PostMapping("/addMany")
     @PreAuthorize("hasRole('COACH')")
     public ResponseEntity<?> addMany(
@@ -30,7 +37,11 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/users")
+    @Operation(
+            summary = "Получить всех зарегистрированных пользователей",
+            description = "Возвращает List<CompactUserDto>, где CompactUserDto - {Long id, String name, String surname, Float rating}"
+    )
+    @GetMapping("")
     public ResponseEntity<?> getUsers() {
         return ResponseEntity
                 .status(HttpStatus.OK)

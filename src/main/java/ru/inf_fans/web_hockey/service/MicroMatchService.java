@@ -47,7 +47,7 @@ public class MicroMatchService {
         availablePlayers.sort(Comparator.comparingDouble(MatchPlayerDto::getRating));
 
         // Начальное время первого матча (через 1 день от начала турнира в 00:00)
-        LocalDateTime currentMatchTime = tournamentEntity.getStartDate().plusDays(1).atStartOfDay();
+        LocalDateTime currentMatchTime = tournamentEntity.getStartDate().plusDays(1);
         // Длительность матча (1 минута)
         Duration matchDuration = Duration.ofMinutes(1);
         // Перерыв между матчами (1.5 минуты)

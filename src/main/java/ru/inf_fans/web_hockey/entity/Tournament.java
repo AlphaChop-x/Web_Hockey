@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,9 +28,9 @@ public class Tournament {
     @Column()
     private String name;
     @Column()
-    private LocalDate startDate;
+    private LocalDateTime startDate;
     @Column()
-    private LocalDate endDate;
+    private LocalDateTime endDate;
 
     @Column
     private String location;

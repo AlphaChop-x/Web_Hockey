@@ -14,10 +14,6 @@ public class MicroMatchDto {
 
     @Override
     public String toString() {
-        return "MicroMatchDto{" +
-                "id=" + id +
-                ", firstTeam=" + firstTeam +
-                ", secondTeam=" + secondTeam +
-                '}';
+        return "\nMatch: " + id + "\nFirstTeam: " + firstTeam + "\nSecondTeam=" + secondTeam;
     }
 }

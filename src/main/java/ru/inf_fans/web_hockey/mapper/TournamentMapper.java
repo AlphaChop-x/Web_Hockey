@@ -6,6 +6,7 @@ import ru.inf_fans.web_hockey.dto.TournamentRequestDto;
 import ru.inf_fans.web_hockey.entity.Tournament;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Component
 public class TournamentMapper {
@@ -13,8 +14,8 @@ public class TournamentMapper {
         Long id = tournament.getId();
         String name = tournament.getName();
         String location = tournament.getLocation();
-        LocalDate startDate = tournament.getStartDate();
-        LocalDate endDate = tournament.getEndDate();
+        LocalDateTime startDate = tournament.getStartDate();
+        LocalDateTime endDate = tournament.getEndDate();
 
         return new TournamentApiDto(id, name, location, startDate, endDate);
     }

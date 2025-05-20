@@ -2,15 +2,15 @@ package ru.inf_fans.web_hockey.dto;
 
 import lombok.Builder;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Builder
 public record TournamentApiDto(
         Long id,
         String name,
         String location,
-        LocalDate startDate,
-        LocalDate endDate
+        LocalDateTime startDate,
+        LocalDateTime endDate
 ) {
     public Long getId() {
         return id;

@@ -1,5 +1,7 @@
 package ru.inf_fans.web_hockey.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,10 @@ public class TournamentController {
 
     private final TournamentServiceImpl tournamentService;
 
+    @Operation(
+            summary = "Получить список всех турниров",
+            description = "В сущностях отсутствуют зарегистрированные пользователи"
+    )
     @GetMapping("/tournaments")
     public ResponseEntity<?> tournaments(
     ) {
@@ -28,6 +34,9 @@ public class TournamentController {
                 .body(tournaments);
     }
 
+    @Operation(
+            summary = "Добавить турнир"
+    )
     @PostMapping(value = "/tournaments")
     @PreAuthorize("hasRole('COACH')")
     public ResponseEntity<?> addTournament(
@@ -39,6 +48,9 @@ public class TournamentController {
                 .body(tournament);
     }
 
+    @Operation(
+            summary = "Получить информацию о турнире"
+    )
     @GetMapping(value = "/tournaments/{tournamentId}")
     public ResponseEntity<?> getTournament(
             @PathVariable(name = "tournamentId") Long tournamentId
@@ -49,6 +61,9 @@ public class TournamentController {
                 .body(tournamentResponse);
     }
 
+    @Operation(
+            summary = "Зарегистрировать текущего аутентифицированного пользователя на турнир"
+    )
     @PostMapping(value = "/tournament/{tournamentId}/register")
     public ResponseEntity<?> registerOnTournament(
             @PathVariable Long tournamentId,
@@ -57,6 +72,23 @@ public class TournamentController {
         String email = (String) authentication.getName();
         tournamentService.registerUserToTournament(tournamentId, email);
 
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
+    }
+
+    @Operation(
+            summary = "Зарегистрировать группу пользователей на турнир",
+            description = "Нужен больше для тестирования, на вход получает List<String> - список почт зарегистрированных в системе пользователей"
+    )
+    @PostMapping("/tournament/{tournamentId}/registerMany")
+    public ResponseEntity<?> registerManyOnTournament(
+            @PathVariable Long tournamentId,
+            @RequestBody List<String> emailsToRegisterOnTournament
+    ) {
+        for (String email : emailsToRegisterOnTournament) {
+            tournamentService.registerUserToTournament(tournamentId, email);
+        }
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .build();

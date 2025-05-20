@@ -41,7 +41,7 @@ public class MicroMatchController {
 
     @Operation(
             summary = "Вернуть микро матчи",
-            description = "По id-шнику турнира в пути {tournamentId} возвращает список микром атчей"
+            description = "По id турнира в пути {tournamentId} возвращает список микром матчей"
     )
     @GetMapping("/tournaments/{tournamentId}/micro-matches")
     public ResponseEntity<?> getMicroMatches(
