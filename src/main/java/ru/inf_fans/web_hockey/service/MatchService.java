@@ -3,17 +3,19 @@ package ru.inf_fans.web_hockey.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.inf_fans.web_hockey.controller.controllerAdvice.NotFoundMatchException;
+import ru.inf_fans.web_hockey.dto.MatchDto;
 import ru.inf_fans.web_hockey.dto.MatchPlayerDto;
-import ru.inf_fans.web_hockey.dto.MicroMatchDto;
+import ru.inf_fans.web_hockey.dto.MatchResultDto;
 import ru.inf_fans.web_hockey.dto.TournamentApiDto;
-import ru.inf_fans.web_hockey.entity.MicroMatch;
+import ru.inf_fans.web_hockey.entity.Match;
 import ru.inf_fans.web_hockey.entity.Team;
 import ru.inf_fans.web_hockey.entity.Tournament;
 import ru.inf_fans.web_hockey.entity.enums.MatchStatus;
 import ru.inf_fans.web_hockey.entity.User;
 import ru.inf_fans.web_hockey.mapper.MatchPlayerMapper;
 import ru.inf_fans.web_hockey.mapper.MicroMatchMapper;
-import ru.inf_fans.web_hockey.repository.MicroMatchRepository;
+import ru.inf_fans.web_hockey.repository.MatchRepository;
 import ru.inf_fans.web_hockey.repository.TeamRepository;
 import ru.inf_fans.web_hockey.repository.UserRepository;
 import ru.inf_fans.web_hockey.service.tournament.TournamentServiceImpl;
@@ -27,19 +29,19 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-public class MicroMatchService {
+public class MatchService {
 
     private final TournamentServiceImpl tournamentService;
     private final UserRepository userRepository;
     private final TeamRepository teamRepository;
-    private final MicroMatchRepository microMatchRepository;
+    private final MatchRepository matchRepository;
     private final MatchPlayerMapper matchPlayerMapper;
     private final MicroMatchMapper microMatchMapper;
     private final MatchStatusService matchStatusService;
     int teamSize = 4;
 
-    public List<MicroMatchDto> generateMatches(TournamentApiDto tournament) {
-        List<MicroMatch> matches = new ArrayList<>();
+    public List<MatchDto> generateMatches(TournamentApiDto tournament) {
+        List<Match> matches = new ArrayList<>();
         List<MatchPlayerDto> availablePlayers = tournamentService.findAllTournamentPlayersEntity(tournament.getId());
         Tournament tournamentEntity = tournamentService.findTournamentById(tournament.getId());
 
@@ -66,14 +68,14 @@ public class MicroMatchService {
             }
 
             // Создаем матч
-            MicroMatch match = new MicroMatch(tournamentEntity, teams.getFirst(), teams.getLast());
+            Match match = new Match(tournamentEntity, teams.getFirst(), teams.getLast());
             match.setStatus(MatchStatus.SCHEDULED);
 
             // Устанавливаем время начала и окончания матча
             match.setStartDate(currentMatchTime);
             match.setEndDate(currentMatchTime.plus(matchDuration));
 
-            microMatchRepository.save(match);
+            matchRepository.save(match);
             matches.add(match);
 
             // Удаляем игроков из доступных (чтобы не повторялись)
@@ -123,20 +125,32 @@ public class MicroMatchService {
         return List.of(teamA, teamB);
     }
 
-    public List<MicroMatchDto> getMicroMatchDtos(
+    public List<MatchDto> getMatchDtos(
             Long tournamentId
     ) {
-        List<MicroMatch> microMatches = microMatchRepository.getMicroMatchesByTournament_Id(tournamentId);
-        List<MicroMatchDto> dtos = new ArrayList<>();
-        for (MicroMatch microMatch : microMatches) {
-            dtos.add(microMatchMapper.toDto(microMatch));
+        List<Match> matches = matchRepository.getMatchesByTournament_Id(tournamentId);
+        List<MatchDto> dtos = new ArrayList<>();
+        for (Match match : matches) {
+            dtos.add(microMatchMapper.toDto(match));
         }
         return dtos;
     }
 
+    public MatchDto getCurrentMatch(Long tournamentId) {
+        Match match = matchRepository.findFirstByStatusAndTournamentIdOrderByStartDate(MatchStatus.IN_PROGRESS, tournamentId);
+        if (match != null) {
+            return microMatchMapper.toDto(match);
+        }
+        try {
+            return microMatchMapper.toDto(matchRepository.findFirstByStatusAndTournamentIdOrderByStartDate(MatchStatus.SCHEDULED, tournamentId));
+        } catch (Exception e) {
+            throw new NotFoundMatchException("Нет матчей для этого турнира!");
+        }
+    }
+
     @Transactional
-    public MicroMatch updateMatchTiming(Long matchId, LocalDateTime newStartDate, LocalDateTime newEndDate) {
-        MicroMatch match = microMatchRepository.findById(matchId)
+    public Match updateMatchTiming(Long matchId, LocalDateTime newStartDate, LocalDateTime newEndDate) {
+        Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
 
         match.setStartDate(newStartDate);
@@ -146,6 +160,15 @@ public class MicroMatchService {
             matchStatusService.scheduleMatch(match);
         }
 
-        return microMatchRepository.save(match);
+        return matchRepository.save(match);
+    }
+
+    public MatchDto updateMatchScore(MatchResultDto dto) {
+        Match match = matchRepository.findById(dto.getMatchId()).orElseThrow(() -> new NotFoundMatchException("Матч с id: " + dto.getMatchId() + " не найден"));
+        match.setFirstTeamScore(dto.getScoreA());
+        match.setSecondTeamScore(dto.getScoreB());
+        matchRepository.save(match);
+
+        return microMatchMapper.toDto(match);
     }
 }

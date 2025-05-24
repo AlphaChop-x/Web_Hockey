@@ -51,6 +51,14 @@ public class ErrorHandlingControllerAdvice {
                 .status(HttpStatus.NOT_FOUND)
                 .body(new ErrorMessage("Ошибка поиска турнира", exception.getMessage()));
     }
+    @ExceptionHandler(NotFoundMatchException.class)
+    public ResponseEntity<ErrorMessage> onNotFoundMatchException(
+            NotFoundMatchException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorMessage("Ошибка поиска матча", exception.getMessage()));
+    }
 
     @ExceptionHandler(NotFoundUserException.class)
     public ResponseEntity<ErrorMessage> onNotFoundUserException(

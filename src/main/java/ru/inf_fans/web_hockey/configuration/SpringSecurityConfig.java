@@ -44,8 +44,8 @@ public class SpringSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, CustomLogoutHandler customLogoutHandler,
-                                           JwtFilter jwtFilter) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, CustomLogoutHandler customLogoutHandler
+    ) throws Exception {
 
         http.csrf(AbstractHttpConfigurer::disable);
 

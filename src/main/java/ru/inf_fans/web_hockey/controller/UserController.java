@@ -1,7 +1,6 @@
 package ru.inf_fans.web_hockey.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -41,6 +40,7 @@ public class UserController {
             summary = "Получить всех зарегистрированных пользователей",
             description = "Возвращает List<CompactUserDto>, где CompactUserDto - {Long id, String name, String surname, Float rating}"
     )
+
     @GetMapping("")
     public ResponseEntity<?> getUsers() {
         return ResponseEntity

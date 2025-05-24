@@ -5,10 +5,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import ru.inf_fans.web_hockey.entity.MicroMatch;
+import ru.inf_fans.web_hockey.entity.Match;
 import ru.inf_fans.web_hockey.entity.enums.MatchStatus;
-import ru.inf_fans.web_hockey.repository.MicroMatchRepository;
+import ru.inf_fans.web_hockey.repository.MatchRepository;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
@@ -17,47 +18,58 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledFuture;
 
 @Service
-@RequiredArgsConstructor
-public class MatchStatusService {
-    private final MicroMatchRepository matchRepository;
-    private final TaskScheduler taskScheduler;
-    private final ConcurrentMap<Long, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
+        @RequiredArgsConstructor
+        public class MatchStatusService {
+            private final MatchRepository matchRepository;
+            private final TaskScheduler taskScheduler;
+            private final ConcurrentMap<Long, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
 
-    @PostConstruct
-    public void init() {
-        scheduleAllMatches();
+            @PostConstruct
+            public void init() {
+                scheduleAllMatches();
+            }
+
+            public void scheduleMatch(Match match) {
+                cancelExistingTasks(match.getId());
+
+                if (match.getStatus() != MatchStatus.SCHEDULED) {
+                    return;
+                }
+
+                ScheduledFuture<?> startTask = taskScheduler.schedule(
+                        () -> startMatch(match),
+                        match.getStartDate().atZone(ZoneId.systemDefault()).toInstant());
+
+                ScheduledFuture<?> endTask = taskScheduler.schedule(
+                        () -> {
+                            completeMatch(match);
+                            taskScheduler.schedule(
+                                    () -> updateMatchScore(match),
+                                    Instant.now().plusSeconds(10)
+                            );
+                        },
+                        match.getEndDate().atZone(ZoneId.systemDefault()).toInstant()
+                );
+
+                scheduledTasks.put(match.getId(), startTask);
+                scheduledTasks.put(match.getId() + 1_000_000L, endTask);
+
+            }
+
+            private void startMatch(Match match) {
+                match.setStatus(MatchStatus.IN_PROGRESS);
+                matchRepository.save(match);
+            }
+
+            private void completeMatch(Match match) {
+                match.setStatus(MatchStatus.FINISHED);
+                matchRepository.save(match);
+
+                cleanUpTasks(match.getId());
     }
 
-    public void scheduleMatch(MicroMatch match) {
-        cancelExistingTasks(match.getId());
-
-        if (match.getStatus() != MatchStatus.SCHEDULED) {
-            return;
-        }
-
-        ScheduledFuture<?> startTask = taskScheduler.schedule(
-                () -> startMatch(match),
-                match.getStartDate().atZone(ZoneId.systemDefault()).toInstant());
-
-        ScheduledFuture<?> endTask = taskScheduler.schedule(
-                () -> completeMatch(match),
-                match.getEndDate().atZone(ZoneId.systemDefault()).toInstant()
-        );
-
-        scheduledTasks.put(match.getId(), startTask);
-        scheduledTasks.put(match.getId() + 1_000_000L, endTask);
-    }
-
-    private void startMatch(MicroMatch match) {
-        match.setStatus(MatchStatus.IN_PROGRESS);
+    private void updateMatchScore(Match match) {
         matchRepository.save(match);
-    }
-
-    private void completeMatch(MicroMatch match) {
-        match.setStatus(MatchStatus.FINISHED);
-        matchRepository.save(match);
-
-        cleanUpTasks(match.getId());
     }
 
     private void cancelExistingTasks(Long matchId) {

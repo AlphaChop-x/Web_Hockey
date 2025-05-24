@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -37,7 +36,7 @@ public class Tournament {
 
     @OneToMany(mappedBy = "tournament")
     @Column()
-    private Set<MicroMatch> microMatches = new HashSet<>();
+    private Set<Match> matches = new HashSet<>();
 
     @JsonIgnore
     @ManyToMany()

@@ -129,8 +129,8 @@ public class TournamentServiceImpl implements TournamentService {
         return tournament;
     }
 
-    public List<Tournament> getAllTournaments() {
-        return tournamentRepository.findAllTournaments();
+    public List<TournamentApiDto> getAllTournaments() {
+        return tournamentRepository.findAllTournaments().stream().map(tournamentMapper::toApiDto).toList();
     }
 
     public TournamentApiDto findTournamentApiDtoById(Long tournament_id) {

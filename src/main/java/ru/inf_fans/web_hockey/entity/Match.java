@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import ru.inf_fans.web_hockey.entity.enums.MatchStatus;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,7 +12,7 @@ import java.util.List;
 @Setter
 @Entity
 @Table()
-public class MicroMatch {
+public class Match {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -44,15 +43,15 @@ public class MicroMatch {
     @Enumerated(EnumType.STRING)
     private MatchStatus status;
 
-    public MicroMatch() {
+    public Match() {
 
     }
 
-    public MicroMatch(List<User> team, List<User> opposingTeam, Tournament tournament) {
+    public Match(List<User> team, List<User> opposingTeam, Tournament tournament) {
 
     }
 
-    public MicroMatch(Tournament tournament, Team firstTeam, Team secondTeam) {
+    public Match(Tournament tournament, Team firstTeam, Team secondTeam) {
         this.tournament = tournament;
         this.firstTeam = firstTeam;
         this.secondTeam = secondTeam;
@@ -60,7 +59,7 @@ public class MicroMatch {
 
     @Override
     public String toString() {
-        return "MicroMatch\n" +
+        return "Match\n" +
                 "tournament id: " + tournament.getId() +
                 "\nfirstTeamId's=" + firstTeam.getPlayers().toString() +
                 "\nsecondTeamId's=" + secondTeam.getPlayers().toString();
