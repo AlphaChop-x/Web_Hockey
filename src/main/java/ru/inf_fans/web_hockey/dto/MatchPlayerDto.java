@@ -14,9 +14,12 @@ import java.util.Date;
 @EqualsAndHashCode
 @Schema(description = "Дто для использования в микро матчах")
 public class MatchPlayerDto {
+    public Long id;
     public String name;
     public String surname;
     public String email;
     public Date born;
     public Float rating;
+
+
 }

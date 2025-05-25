@@ -2,74 +2,111 @@ package ru.inf_fans.web_hockey.service;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.async.DeferredResult;
+import ru.inf_fans.web_hockey.dto.MatchDto;
 import ru.inf_fans.web_hockey.entity.Match;
 import ru.inf_fans.web_hockey.entity.enums.MatchStatus;
+import ru.inf_fans.web_hockey.event.MatchEvent;
+import ru.inf_fans.web_hockey.mapper.MatchPlayerMapper;
+import ru.inf_fans.web_hockey.mapper.MatchMapper;
 import ru.inf_fans.web_hockey.repository.MatchRepository;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledFuture;
 
 @Service
-        @RequiredArgsConstructor
-        public class MatchStatusService {
-            private final MatchRepository matchRepository;
-            private final TaskScheduler taskScheduler;
-            private final ConcurrentMap<Long, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
+@RequiredArgsConstructor
+public class MatchStatusService {
+    private final MatchRepository matchRepository;
+    private final TaskScheduler taskScheduler;
+    private final ApplicationEventPublisher eventPublisher;
+    private final ConcurrentMap<Long, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
+    private final Map<Long,
+            DeferredResult<ResponseEntity<MatchDto>>> pendingUpdates = new ConcurrentHashMap<>();
+    private final MatchPlayerMapper matchPlayerMapper;
+    private final MatchMapper matchMapper;
 
-            @PostConstruct
-            public void init() {
-                scheduleAllMatches();
-            }
+    @PostConstruct
+    public void init() {
+        scheduleAllMatches();
+    }
 
-            public void scheduleMatch(Match match) {
-                cancelExistingTasks(match.getId());
+    public DeferredResult<ResponseEntity<MatchDto>> waitForMatchUpdate(Long matchId, Long timeout) {
+        DeferredResult<ResponseEntity<MatchDto>> deferredResult = new DeferredResult<>(timeout);
 
-                if (match.getStatus() != MatchStatus.SCHEDULED) {
-                    return;
-                }
+        deferredResult.onTimeout(() -> {
+            pendingUpdates.remove(matchId);
+            deferredResult.setResult(ResponseEntity.noContent().build());
+        });
 
-                ScheduledFuture<?> startTask = taskScheduler.schedule(
-                        () -> startMatch(match),
-                        match.getStartDate().atZone(ZoneId.systemDefault()).toInstant());
+        pendingUpdates.put(matchId, deferredResult);
+        return deferredResult;
+    }
 
-                ScheduledFuture<?> endTask = taskScheduler.schedule(
-                        () -> {
-                            completeMatch(match);
-                            taskScheduler.schedule(
-                                    () -> updateMatchScore(match),
-                                    Instant.now().plusSeconds(10)
-                            );
-                        },
-                        match.getEndDate().atZone(ZoneId.systemDefault()).toInstant()
-                );
+    private void notifySubscribers(Match match) {
+        DeferredResult<ResponseEntity<MatchDto>> result = pendingUpdates.get(match.getId());
+        if (result != null) {
+            result.setResult(ResponseEntity.ok(matchMapper.toDto(match)));
+            pendingUpdates.remove(match.getId());
+        }
+        eventPublisher.publishEvent(new MatchEvent(this, match));
+    }
 
-                scheduledTasks.put(match.getId(), startTask);
-                scheduledTasks.put(match.getId() + 1_000_000L, endTask);
+    public void scheduleMatch(Match match) {
+        cancelExistingTasks(match.getId());
 
-            }
+        if (match.getStatus() != MatchStatus.SCHEDULED) {
+            return;
+        }
 
-            private void startMatch(Match match) {
-                match.setStatus(MatchStatus.IN_PROGRESS);
-                matchRepository.save(match);
-            }
+        ScheduledFuture<?> startTask = taskScheduler.schedule(
+                () -> startMatch(match),
+                match.getStartDate().atZone(ZoneId.systemDefault()).toInstant());
 
-            private void completeMatch(Match match) {
-                match.setStatus(MatchStatus.FINISHED);
-                matchRepository.save(match);
+        ScheduledFuture<?> endTask = taskScheduler.schedule(
+                () -> {
+                    completeMatch(match);
+                    taskScheduler.schedule(
+                            () -> updateMatchScore(match),
+                            Instant.now().plusSeconds(10)
+                    );
+                },
+                match.getEndDate().atZone(ZoneId.systemDefault()).toInstant()
+        );
 
-                cleanUpTasks(match.getId());
+        scheduledTasks.put(match.getId(), startTask);
+        scheduledTasks.put(match.getId() + 1_000_000L, endTask);
+
+    }
+
+    // Модифицируем методы обновления статусов
+    private void startMatch(Match match) {
+        match.setStatus(MatchStatus.IN_PROGRESS);
+        matchRepository.save(match);
+        notifySubscribers(match);
+    }
+
+    private void completeMatch(Match match) {
+        match.setStatus(MatchStatus.FINISHED);
+        matchRepository.save(match);
+        notifySubscribers(match);
+        cleanUpTasks(match.getId());
     }
 
     private void updateMatchScore(Match match) {
         matchRepository.save(match);
+        notifySubscribers(match);
     }
 
     private void cancelExistingTasks(Long matchId) {

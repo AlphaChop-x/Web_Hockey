@@ -1,10 +1,14 @@
 package ru.inf_fans.web_hockey.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.DeferredResult;
 import ru.inf_fans.web_hockey.dto.MatchResultDto;
 import ru.inf_fans.web_hockey.dto.MatchDto;
 import ru.inf_fans.web_hockey.dto.TournamentApiDto;
@@ -14,9 +18,10 @@ import ru.inf_fans.web_hockey.service.tournament.TournamentServiceImpl;
 
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/tournaments/{tournamentId}")
+@RequestMapping("/api/tournaments/{tournamentId}/matches")
 public class MatchController {
 
     private final TournamentServiceImpl tournamentService;
@@ -27,7 +32,7 @@ public class MatchController {
             summary = "Сгенерировать микро матчи",
             description = "Принимает id турнира в пути {tournamentId}"
     )
-    @PostMapping("/matches")
+    @PostMapping("")
     public ResponseEntity<?> generateMatches(
             @PathVariable Long tournamentId
     ) {
@@ -46,7 +51,7 @@ public class MatchController {
             summary = "Вернуть микро матчи",
             description = "По id турнира в пути {tournamentId} возвращает список микром матчей"
     )
-    @GetMapping("/matches")
+    @GetMapping("")
     public ResponseEntity<?> getMatches(
             @PathVariable Long tournamentId
     ) {
@@ -61,7 +66,7 @@ public class MatchController {
             summary = "Вернуть текущий матч",
             description = "Возвращает текущий матч, если в данный момент нет идущих матчей, то возвращает ближайший"
     )
-    @GetMapping("/matches/current")
+    @GetMapping("/current")
     public ResponseEntity<?> getCurrentMatch(
             @PathVariable Long tournamentId
     ) {
@@ -70,20 +75,46 @@ public class MatchController {
                 .status(HttpStatus.OK)
                 .body(dto);
     }
+//
+//    @Operation(
+//            summary = "Обновление счёта",
+//            description = "Автоматическое завершение через MatchStatusService."
+//    )
+//    @PostMapping("/{matchId}/update")
+//    public ResponseEntity<?> updateMatchScore(
+//            @RequestBody MatchResultDto matchResult
+//    ) {
+//        matchService.updateMatchScore(matchResult);
+//
+//        return ResponseEntity
+//                .status(HttpStatus.OK)
+//                .build();
+//    }
 
     @Operation(
-            summary = "Обновление счёта",
-            description = "Автоматическое завершение через MatchStatusService."
+            summary = "Long-polling для обновлений матча",
+            description = "Возвращает данные матча при изменении его статуса. Таймаут 30 сек."
     )
-    @PostMapping("/matches/{matchId}/update")
-    public ResponseEntity<?> updateMatchScore(
-            @RequestBody MatchResultDto matchResult
-    ) {
-        matchService.updateMatchScore(matchResult);
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Обновленные данные матча"),
+            @ApiResponse(responseCode = "204", description = "Таймаут без изменений"),
+            @ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
+    @GetMapping("/{matchId}/updates")
+    public DeferredResult<ResponseEntity<MatchDto>> getMatchUpdates(
+            @PathVariable Long matchId,
+            @RequestParam(defaultValue = "30000") Long timeout) {
+        log.debug("New long-polling request for match {} (timeout: {}ms)", matchId, timeout);
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .build();
+        DeferredResult<ResponseEntity<MatchDto>> deferredResult = matchStatusService.waitForMatchUpdate(matchId, timeout);
+
+        deferredResult.onError((throwable) -> {
+            log.error("Long-polling error for match {}: {}", matchId, throwable.getMessage());
+            deferredResult.setErrorResult(
+                    ResponseEntity.internalServerError().body("Connection error")
+            );
+        });
+
+        return deferredResult;
     }
-
 }

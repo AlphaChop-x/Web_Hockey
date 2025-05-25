@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class MicroMatchMapper {
+public class MatchMapper {
 
     private final MatchPlayerMapper matchPlayerMapper;
 
-    public MicroMatchMapper(MatchPlayerMapper matchPlayerMapper) {
+    public MatchMapper(MatchPlayerMapper matchPlayerMapper) {
         this.matchPlayerMapper = matchPlayerMapper;
     }
 

@@ -3,8 +3,10 @@ package ru.inf_fans.web_hockey.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import ru.inf_fans.web_hockey.dto.MatchPlayerDto;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,6 +38,9 @@ public class Team {
 
     public Team() {
 
+    }
+
+    public Team(String s, List<MatchPlayerDto> team1) {
     }
 
     public int size() {

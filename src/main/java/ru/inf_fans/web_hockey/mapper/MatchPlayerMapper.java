@@ -13,6 +13,7 @@ public class MatchPlayerMapper {
         }
 
         MatchPlayerDto dto = new MatchPlayerDto();
+        dto.id = user.getId();
         dto.name = user.getName();
         dto.surname = user.getSurname();
         dto.email = user.getEmail();

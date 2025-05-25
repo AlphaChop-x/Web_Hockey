@@ -34,7 +34,7 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
     @Query("SELECT u FROM Tournament t JOIN t.players u WHERE t.id = :tournamentId")
     List<User> findPlayersById(Long tournamentId);
 
-    @Query("SELECT new ru.inf_fans.web_hockey.dto.MatchPlayerDto(u.name, u.surname, u.email, u.born, u.rating) " +
+    @Query("SELECT new ru.inf_fans.web_hockey.dto.MatchPlayerDto(u.id,u.name, u.surname, u.email, u.born, u.rating) " +
             "FROM Tournament t JOIN t.players u WHERE t.id = :tournamentId")
     List<MatchPlayerDto> findPlayersDtoById(@Param("tournamentId") Long tournamentId);
 
