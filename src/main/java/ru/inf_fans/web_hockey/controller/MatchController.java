@@ -75,46 +75,19 @@ public class MatchController {
                 .status(HttpStatus.OK)
                 .body(dto);
     }
-//
-//    @Operation(
-//            summary = "Обновление счёта",
-//            description = "Автоматическое завершение через MatchStatusService."
-//    )
-//    @PostMapping("/{matchId}/update")
-//    public ResponseEntity<?> updateMatchScore(
-//            @RequestBody MatchResultDto matchResult
-//    ) {
-//        matchService.updateMatchScore(matchResult);
-//
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .build();
-//    }
 
     @Operation(
-            summary = "Long-polling для обновлений матча",
-            description = "Возвращает данные матча при изменении его статуса. Таймаут 30 сек."
+            summary = "Обновление счёта",
+            description = "Автоматическое завершение через MatchStatusService."
     )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Обновленные данные матча"),
-            @ApiResponse(responseCode = "204", description = "Таймаут без изменений"),
-            @ApiResponse(responseCode = "500", description = "Ошибка сервера")
-    })
-    @GetMapping("/{matchId}/updates")
-    public DeferredResult<ResponseEntity<MatchDto>> getMatchUpdates(
-            @PathVariable Long matchId,
-            @RequestParam(defaultValue = "30000") Long timeout) {
-        log.debug("New long-polling request for match {} (timeout: {}ms)", matchId, timeout);
+    @PostMapping("/{matchId}/update")
+    public ResponseEntity<?> updateMatchScore(
+            @RequestBody MatchResultDto matchResult
+    ) {
+        matchService.updateMatchScore(matchResult);
 
-        DeferredResult<ResponseEntity<MatchDto>> deferredResult = matchStatusService.waitForMatchUpdate(matchId, timeout);
-
-        deferredResult.onError((throwable) -> {
-            log.error("Long-polling error for match {}: {}", matchId, throwable.getMessage());
-            deferredResult.setErrorResult(
-                    ResponseEntity.internalServerError().body("Connection error")
-            );
-        });
-
-        return deferredResult;
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
     }
 }

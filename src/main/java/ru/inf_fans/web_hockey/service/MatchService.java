@@ -76,7 +76,7 @@ public class MatchService {
         allPlayers.forEach(player -> playerMatchCounts.put(player, 0));
 
         // Настройка времени матчей
-        LocalDateTime currentMatchTime = tournamentEntity.getStartDate().plusDays(1);
+        LocalDateTime currentMatchTime = tournamentEntity.getStartDate();
         Duration matchDuration = Duration.ofMinutes(1);
         Duration breakDuration = Duration.ofMillis(90_000);
 
@@ -108,6 +108,7 @@ public class MatchService {
                 match.setStartDate(currentMatchTime);
                 match.setEndDate(currentMatchTime.plus(matchDuration));
                 matchRepository.save(match);
+                matchStatusService.scheduleMatch(match);
                 matches.add(match);
 
                 // Обновление счетчиков
