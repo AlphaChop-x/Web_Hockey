@@ -23,11 +23,11 @@ public class Match {
     @JoinColumn(name = "tournament_id", nullable = false)
     private Tournament tournament;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "first_team_id", nullable = false)
     private Team firstTeam;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "second_team_id", nullable = false)
     private Team secondTeam;
 

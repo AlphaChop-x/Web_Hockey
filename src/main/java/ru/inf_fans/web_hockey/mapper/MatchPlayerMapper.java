@@ -22,4 +22,20 @@ public class MatchPlayerMapper {
 
         return dto;
     }
+
+    public User toEntity(MatchPlayerDto dto) {
+        if (dto == null) {
+            return null;
+        }
+
+        User user = new User();
+        user.setId(dto.id);
+        user.setName(dto.name);
+        user.setSurname(dto.surname);
+        user.setEmail(dto.email);
+        user.setBorn(dto.born);
+        user.setRating(dto.rating);
+
+        return user;
+    }
 }

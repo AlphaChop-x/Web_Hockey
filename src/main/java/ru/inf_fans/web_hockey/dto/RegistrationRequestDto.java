@@ -3,6 +3,7 @@ package ru.inf_fans.web_hockey.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import ru.inf_fans.web_hockey.entity.enums.Gender;
+import ru.inf_fans.web_hockey.validation.PhoneNumberValid;
 
 import java.util.Date;
 
@@ -20,6 +21,7 @@ public class RegistrationRequestDto {
     @Schema(description = "Пароль пользователя", example = "password1234")
     private String password;
     @Schema(description = "Телефон пользователя", example = "+79012345678")
+    @PhoneNumberValid
     private String phoneNumber;
     @Schema(description = "Пол пользователя", allowableValues = {"MALE", "FEMALE"})
     private Gender gender;

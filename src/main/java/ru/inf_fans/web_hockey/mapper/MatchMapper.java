@@ -21,7 +21,7 @@ public class MatchMapper {
 
     public MatchDto toDto(Match match) {
         MatchDto dto = new MatchDto();
-        dto.id = Math.toIntExact(match.getId());
+        dto.id = match.getId();
 
         dto.firstTeam = toMatchPlayerDtoList(
                 new ArrayList<>(match.getFirstTeam().getPlayers())

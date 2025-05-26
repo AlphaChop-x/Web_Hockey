@@ -1,13 +1,17 @@
 package ru.inf_fans.web_hockey.service;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import ru.inf_fans.web_hockey.dto.MatchDto;
+import ru.inf_fans.web_hockey.dto.MatchPlayerDto;
 import ru.inf_fans.web_hockey.entity.Match;
 import ru.inf_fans.web_hockey.entity.enums.MatchStatus;
+import ru.inf_fans.web_hockey.mapper.MatchMapper;
 import ru.inf_fans.web_hockey.repository.MatchRepository;
 
 import java.time.Instant;
@@ -23,8 +27,10 @@ import java.util.concurrent.ScheduledFuture;
 @RequiredArgsConstructor
 public class MatchStatusService {
     private final MatchRepository matchRepository;
+    private final RatingCalculator ratingCalculator;
     private final TaskScheduler taskScheduler;
     private final ConcurrentMap<Long, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
+    private final MatchMapper matchMapper;
 
     @PostConstruct
     public void init() {
@@ -45,10 +51,6 @@ public class MatchStatusService {
         ScheduledFuture<?> endTask = taskScheduler.schedule(
                 () -> {
                     completeMatch(match);
-                    taskScheduler.schedule(
-                            () -> updateMatchScore(match),
-                            Instant.now().plusSeconds(10)
-                    );
                 },
                 match.getEndDate().atZone(ZoneId.systemDefault()).toInstant()
         );
@@ -65,9 +67,35 @@ public class MatchStatusService {
     }
 
     private void completeMatch(Match match) {
+        match = matchRepository.findById(match.getId()).orElseThrow();
         match.setStatus(MatchStatus.FINISHED);
+        MatchDto matchDto = matchMapper.toDto(match);
+
         log.info("Match completed: {}", match.getId());
-        matchRepository.save(match);
+
+        log.info("Team 1 players:");
+        for (MatchPlayerDto player : matchDto.firstTeam) {
+            log.info("{} {}: {}", player.name, player.surname, player.rating);
+        }
+
+        log.info("Team 2 players:");
+        for (MatchPlayerDto player : matchDto.secondTeam) {
+            log.info("{} {}: {}", player.name, player.surname, player.rating);
+        }
+
+        ratingCalculator.processMatch(matchDto);
+
+        log.info("Team 1 players:");
+        for (MatchPlayerDto player : matchDto.firstTeam) {
+            log.info("{} {}: {}", player.name, player.surname, player.rating);
+        }
+
+        log.info("Team 2 players:");
+        for (MatchPlayerDto player : matchDto.secondTeam) {
+            log.info("{} {}: {}", player.name, player.surname, player.rating);
+        }
+
+        match = updateRating(match, matchDto);
 
         cleanUpTasks(match.getId());
     }
@@ -102,5 +130,26 @@ public class MatchStatusService {
                 startMatch(match);
             }
         });
+    }
+
+    protected Match updateRating(Match match, MatchDto dto) {
+        // Обновляем рейтинги игроков первой команды
+        match.getFirstTeam().getPlayers().forEach(player -> {
+            dto.getFirstTeam().stream()
+                    .filter(dtoPlayer -> dtoPlayer.getId().equals(player.getId()))
+                    .findFirst()
+                    .ifPresent(dtoPlayer -> player.setRating(dtoPlayer.getRating()));
+        });
+
+        // Обновляем рейтинги игроков второй команды
+        match.getSecondTeam().getPlayers().forEach(player -> {
+            dto.getSecondTeam().stream()
+                    .filter(dtoPlayer -> dtoPlayer.getId().equals(player.getId()))
+                    .findFirst()
+                    .ifPresent(dtoPlayer -> player.setRating(dtoPlayer.getRating()));
+        });
+
+        matchRepository.save(match);
+        return match;
     }
 }

@@ -17,6 +17,7 @@ import ru.inf_fans.web_hockey.controller.controllerAdvice.AlreadyRegisteredPhone
 import ru.inf_fans.web_hockey.controller.controllerAdvice.NotFoundUserException;
 import ru.inf_fans.web_hockey.dto.AuthenticationResponseDto;
 import ru.inf_fans.web_hockey.dto.LoginRequestDto;
+import ru.inf_fans.web_hockey.dto.LoginResponseDto;
 import ru.inf_fans.web_hockey.dto.RegistrationRequestDto;
 import ru.inf_fans.web_hockey.entity.Token;
 import ru.inf_fans.web_hockey.entity.User;
@@ -65,7 +66,7 @@ public class AuthenticationService {
         user = userRepository.save(user);
     }
 
-    public AuthenticationResponseDto authenticate(LoginRequestDto request) {
+    public LoginResponseDto authenticate(LoginRequestDto request) {
 
         try {
             authenticationManager.authenticate(
@@ -88,7 +89,11 @@ public class AuthenticationService {
 
         saveUserToken(accessToken, refreshToken, user);
 
-        return new AuthenticationResponseDto(accessToken, refreshToken);
+        LoginResponseDto loginResponseDto = userRepository.findResponseDtoByEmail(user.getEmail());
+        loginResponseDto.setAccessToken(accessToken);
+        loginResponseDto.setRefreshToken(refreshToken);
+
+        return loginResponseDto;
     }
 
     public ResponseEntity<AuthenticationResponseDto> refreshToken(

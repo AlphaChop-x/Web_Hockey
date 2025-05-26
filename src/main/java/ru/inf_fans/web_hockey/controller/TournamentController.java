@@ -39,9 +39,7 @@ public class TournamentController {
     )
     @PostMapping(value = "/tournaments")
     @PreAuthorize("hasRole('COACH')")
-    public ResponseEntity<?> addTournament(
-            @RequestBody TournamentRequestDto tournament
-    ) {
+    public ResponseEntity<?> addTournament(@RequestBody TournamentRequestDto tournament) {
         tournamentService.createTournament(tournament);
         return ResponseEntity
                 .status(HttpStatus.CREATED)

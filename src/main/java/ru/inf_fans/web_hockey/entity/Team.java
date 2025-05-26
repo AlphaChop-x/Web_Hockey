@@ -24,7 +24,7 @@ public class Team {
     @JoinColumn(name = "tournament_id")
     private Tournament tournament;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(
             name = "team_player",
             joinColumns = @JoinColumn(name = "team_id"),

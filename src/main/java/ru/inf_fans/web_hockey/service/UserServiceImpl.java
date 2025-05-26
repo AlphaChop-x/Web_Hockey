@@ -5,6 +5,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.inf_fans.web_hockey.dto.CompactUserDto;
+import ru.inf_fans.web_hockey.dto.MatchDto;
+import ru.inf_fans.web_hockey.entity.Match;
 import ru.inf_fans.web_hockey.entity.User;
 import ru.inf_fans.web_hockey.mapper.UserEntityMapper;
 import ru.inf_fans.web_hockey.repository.UserRepository;

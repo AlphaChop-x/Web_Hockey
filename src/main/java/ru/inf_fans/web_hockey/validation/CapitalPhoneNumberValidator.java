@@ -11,7 +11,7 @@ public class CapitalPhoneNumberValidator implements ConstraintValidator<PhoneNum
             ConstraintValidatorContext constraintValidatorContext
     ) {
         if (value != null && !value.isEmpty()) {
-            return (value.startsWith("+79")) && (!value.contains(" ") && value.length() == 12);
+            return (((value.startsWith("+79")) && value.length() == 12) || (value.startsWith("89")) && value.length() == 11) && (!value.contains(" "));
         }
         return true;
     }
