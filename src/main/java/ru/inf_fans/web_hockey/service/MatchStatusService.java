@@ -96,9 +96,9 @@ public class MatchStatusService {
         LocalDateTime now = LocalDateTime.now();
         System.out.println("Checking missed matches for " + now);
         matchRepository.findMatchesToProcess(now).forEach(match -> {
-            if (now.isAfter(match.getEndDate())) {
+            if (now.isAfter(match.getEndDate()) && (match.getStatus() == MatchStatus.IN_PROGRESS || match.getStatus() == MatchStatus.SCHEDULED)) {
                 completeMatch(match);
-            } else if (now.isAfter(match.getStartDate())) {
+            } else if (now.isAfter(match.getStartDate()) && match.getStatus() == MatchStatus.SCHEDULED) {
                 startMatch(match);
             }
         });

@@ -28,24 +28,24 @@ public class MatchController {
     private final MatchService matchService;
     private final MatchStatusService matchStatusService;
 
-    @Operation(
-            summary = "Сгенерировать микро матчи",
-            description = "Принимает id турнира в пути {tournamentId}"
-    )
-    @PostMapping("")
-    public ResponseEntity<?> generateMatches(
-            @PathVariable Long tournamentId
-    ) {
-        TournamentApiDto tournament = tournamentService.findTournamentApiDtoById(tournamentId);
-
-        int countOfPlayers = tournamentService.findAllTournamentPlayers(tournamentId).size();
-        List<MatchDto> matches = matchService.generateMatches(tournament);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body("Количество игроков турнира: " + countOfPlayers +
-                        "\n" + matches);
-    }
+//    @Operation(
+//            summary = "Сгенерировать микро матчи",
+//            description = "Принимает id турнира в пути {tournamentId}"
+//    )
+//    @PostMapping("")
+//    public ResponseEntity<?> generateMatches(
+//            @PathVariable Long tournamentId
+//    ) {
+//        TournamentApiDto tournament = tournamentService.findTournamentApiDtoById(tournamentId);
+//
+//        int countOfPlayers = tournamentService.findAllTournamentPlayers(tournamentId).size();
+//        List<MatchDto> matches = matchService.generateMatches(tournament);
+//
+//        return ResponseEntity
+//                .status(HttpStatus.OK)
+//                .body("Количество игроков турнира: " + countOfPlayers +
+//                        "\n" + matches);
+//    }
 
     @Operation(
             summary = "Вернуть микро матчи",
@@ -82,9 +82,10 @@ public class MatchController {
     )
     @PostMapping("/{matchId}/update")
     public ResponseEntity<?> updateMatchScore(
+            @PathVariable Long matchId,
             @RequestBody MatchResultDto matchResult
     ) {
-        matchService.updateMatchScore(matchResult);
+        matchService.updateMatchScore(matchId, matchResult);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

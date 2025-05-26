@@ -11,6 +11,7 @@ import ru.inf_fans.web_hockey.dto.TournamentApiDto;
 import ru.inf_fans.web_hockey.entity.Tournament;
 import ru.inf_fans.web_hockey.entity.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -26,11 +27,6 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
     @Transactional
     Tournament findTournamentsById(Long tournamentId);
 
-    @Transactional
-    @Query("SELECT new ru.inf_fans.web_hockey.dto.TournamentApiDto(t.id, t.name, t.location, t.startDate, t.endDate) " +
-            "FROM Tournament t WHERE  t.id = :tournamentId")
-    TournamentApiDto findTournamentDtoById(@Param("tournamentId") Long tournamentId);
-
     @Query("SELECT u FROM Tournament t JOIN t.players u WHERE t.id = :tournamentId")
     List<User> findPlayersById(Long tournamentId);
 
@@ -38,18 +34,8 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
             "FROM Tournament t JOIN t.players u WHERE t.id = :tournamentId")
     List<MatchPlayerDto> findPlayersDtoById(@Param("tournamentId") Long tournamentId);
 
-    @Modifying
-    @Query("DELETE FROM Tournament t WHERE t.id = :tournamentId")
-    void deleteTournamentById(Long tournamentId);
-
     @Query("SELECT t FROM Tournament t")
     List<Tournament> findAllTournaments();
-
-    @Query("SELECT t.id FROM Tournament t WHERE t.name = :tournamentName")
-    String findTournament_IdByName(String tournamentName);
-
-    @Query("SELECT u FROM Tournament t JOIN t.players u WHERE t.id = :tournamentId AND u.id = :userEntityId")
-    User findUserByTournament_IdAndUserId(Long tournamentId, Long userEntityId);
 
     @Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END " +
             "FROM Tournament t JOIN t.players p " +
@@ -58,4 +44,10 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
             @Param("tournamentId") Long tournamentId,
             @Param("userId") Long userId);
 
+    @Query("SELECT t from Tournament t WHERE t.startDate > :currentTime")
+    List<Tournament> findByStartDateBefore(@Param("currentTime") LocalDateTime currentTime);
+
+    @Query("SELECT case WHEN SIZE(t.matches) > 0 THEN True ELSE false END" +
+            " FROM Tournament t WHERE t.id = :tournamentId")
+    boolean existMatches(@Param("tournamentId") Long tournamentId);
 }

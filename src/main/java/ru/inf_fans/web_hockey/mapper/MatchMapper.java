@@ -35,6 +35,7 @@ public class MatchMapper {
         dto.endTime = match.getEndDate();
         dto.teamAscore = match.getFirstTeamScore();
         dto.teamBscore = match.getSecondTeamScore();
+        dto.status = match.getStatus();
 
         return dto;
     }

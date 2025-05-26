@@ -19,6 +19,7 @@ public interface MatchRepository extends CrudRepository<Match, Long> {
     List<Match> findAllByStatus(MatchStatus matchStatus);
 
     @Query("SELECT m FROM Match m WHERE m.status = ru.inf_fans.web_hockey.entity.enums.MatchStatus.SCHEDULED " +
+            "OR m.status = ru.inf_fans.web_hockey.entity.enums.MatchStatus.IN_PROGRESS " +
             "AND (:now BETWEEN m.startDate AND m.endDate OR :now > m.startDate)")
     List<Match> findMatchesToProcess(LocalDateTime now);
 

@@ -10,7 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MatchResultDto {
-    private Long matchId;
     private int scoreA;
     private int scoreB;
 }

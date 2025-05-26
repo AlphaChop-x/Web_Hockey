@@ -2,9 +2,12 @@ package ru.inf_fans.web_hockey.service.tournament;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import ru.inf_fans.web_hockey.controller.controllerAdvice.NotFoundTournamentException;
@@ -17,19 +20,24 @@ import ru.inf_fans.web_hockey.mapper.TournamentMapper;
 import ru.inf_fans.web_hockey.mapper.UserApiDtoMapper;
 import ru.inf_fans.web_hockey.repository.TournamentRepository;
 import ru.inf_fans.web_hockey.repository.UserRepository;
+import ru.inf_fans.web_hockey.service.MatchService;
 
+import java.time.ZoneId;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class TournamentServiceImpl implements TournamentService {
 
     private final UserApiDtoMapper userApiDtoMapper;
     private final UserRepository userRepository;
     private final TournamentMapper tournamentMapper;
     private final TournamentRepository tournamentRepository;
-    private final PlatformTransactionManager transactionManager;
 
 
     public void createTournament(TournamentRequestDto tournamentDto) {

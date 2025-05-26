@@ -1,7 +1,10 @@
 package ru.inf_fans.web_hockey.service;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import ru.inf_fans.web_hockey.controller.controllerAdvice.NotFoundMatchException;
 import ru.inf_fans.web_hockey.dto.MatchDto;
@@ -15,16 +18,23 @@ import ru.inf_fans.web_hockey.entity.enums.MatchStatus;
 import ru.inf_fans.web_hockey.entity.User;
 import ru.inf_fans.web_hockey.mapper.MatchPlayerMapper;
 import ru.inf_fans.web_hockey.mapper.MatchMapper;
+import ru.inf_fans.web_hockey.mapper.TournamentMapper;
 import ru.inf_fans.web_hockey.repository.MatchRepository;
 import ru.inf_fans.web_hockey.repository.TeamRepository;
+import ru.inf_fans.web_hockey.repository.TournamentRepository;
 import ru.inf_fans.web_hockey.repository.UserRepository;
 import ru.inf_fans.web_hockey.service.tournament.TournamentServiceImpl;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class MatchService {
@@ -67,6 +77,7 @@ public class MatchService {
     private final Map<PlayerPair, Integer> playerPairMatches = new HashMap<>();
 
     public List<MatchDto> generateMatches(TournamentApiDto tournament) {
+        log.info("Generating matches for tournament {}", tournament.getId());
         List<Match> matches = new ArrayList<>();
         List<MatchPlayerDto> allPlayers = tournamentService.findAllTournamentPlayersEntity(tournament.getId());
         Tournament tournamentEntity = tournamentService.findTournamentById(tournament.getId());
@@ -237,12 +248,10 @@ public class MatchService {
         return matchRepository.save(match);
     }
 
-    public MatchDto updateMatchScore(MatchResultDto dto) {
-        Match match = matchRepository.findById(dto.getMatchId()).orElseThrow(() -> new NotFoundMatchException("Матч с id: " + dto.getMatchId() + " не найден"));
+    public void updateMatchScore(Long matchId, MatchResultDto dto) {
+        Match match = matchRepository.findById(matchId).orElseThrow(() -> new RuntimeException("Match not found"));
         match.setFirstTeamScore(dto.getScoreA());
         match.setSecondTeamScore(dto.getScoreB());
         matchRepository.save(match);
-
-        return matchMapper.toDto(match);
     }
 }
